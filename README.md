@@ -1,36 +1,115 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CRM - Lead Management
+
+A simple web CRM application for managing local business leads. Built with Next.js, TypeScript, Tailwind CSS, and Supabase (PostgreSQL).
+
+## Features
+
+- **Dashboard** - Přehled metrik (celkem poptávek, kontaktováno, odpovědělo, vyhráno)
+- **Poptávky** - Tabulka s filtry podle stavu
+- **Vytvoření/úprava** - Formulář pro přidání a editaci poptávek
+
+## Tech Stack
+
+- Next.js 16 (App Router)
+- TypeScript
+- Tailwind CSS
+- Supabase (PostgreSQL)
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+
+- npm
+- Supabase account
+
+### Installation
+
+1. Install dependencies:
+
+```bash
+npm install
+```
+
+2. Create a Supabase project at [supabase.com](https://supabase.com) and get your credentials.
+
+3. Set up environment variables. Copy `.env.example` to `.env.local`:
+
+```bash
+cp .env.example .env.local
+```
+
+Edit `.env.local` with your Supabase credentials:
+- `NEXT_PUBLIC_SUPABASE_URL` - From Project Settings → API
+- `SUPABASE_SERVICE_ROLE_KEY` - Service role key (for server-side data access)
+
+4. Create the leads table. In Supabase Dashboard → SQL Editor, run:
+
+```sql
+CREATE TABLE IF NOT EXISTS leads (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  company_name TEXT NOT NULL,
+  city TEXT NOT NULL,
+  website TEXT NOT NULL DEFAULT '',
+  contact TEXT NOT NULL DEFAULT '',
+  contact_channel TEXT NOT NULL DEFAULT 'email',
+  status TEXT NOT NULL DEFAULT 'new',
+  contacted_at TIMESTAMPTZ,
+  notes TEXT NOT NULL DEFAULT '',
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow all" ON leads FOR ALL USING (true) WITH CHECK (true);
+```
+
+5. Seed with sample data (optional):
+
+```bash
+npm run db:seed
+```
+
+6. Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deployment (Vercel)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Supabase works great with Vercel. Add your environment variables in the Vercel project settings:
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+├── app/
+│   ├── leads/          # Lead list, detail, create, edit
+│   ├── layout.tsx
+│   └── page.tsx        # Dashboard
+├── components/
+│   ├── DeleteLeadButton.tsx
+│   ├── LeadForm.tsx
+│   └── Navigation.tsx
+├── lib/
+│   ├── actions.ts      # Server actions (CRUD)
+│   ├── constants.ts
+│   ├── database.ts     # Types and helpers
+│   ├── leads.ts        # Lead queries
+│   └── supabase.ts     # Supabase client
+├── scripts/
+│   └── seed.ts         # Database seed
+└── supabase/
+    └── migrations/     # SQL migrations
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run db:seed` - Seed database with sample data
