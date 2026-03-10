@@ -37,3 +37,36 @@ export function toLead(row: LeadRow): Lead {
     notes: row.notes,
   };
 }
+
+export type ClientRow = {
+  id: string;
+  name: string;
+  contact_email: string;
+  web: string;
+  ico: string;
+  cooperation_start_date: string | null;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type Client = {
+  id: string;
+  name: string;
+  contactEmail: string;
+  web: string;
+  ico: string;
+  cooperationStartDate: Date | null;
+};
+
+export function toClient(row: ClientRow): Client {
+  return {
+    id: row.id,
+    name: row.name,
+    contactEmail: row.contact_email,
+    web: row.web,
+    ico: row.ico,
+    cooperationStartDate: row.cooperation_start_date
+      ? new Date(row.cooperation_start_date)
+      : null,
+  };
+}

@@ -8,6 +8,7 @@ import { ThemeToggle } from "./ThemeToggle";
 const navItems = [
   { href: "/", label: "Přehled" },
   { href: "/leads", label: "Poptávky" },
+  { href: "/clients", label: "Klienti" },
 ];
 
 export function Navigation() {
