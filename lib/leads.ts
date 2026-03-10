@@ -33,21 +33,24 @@ export async function getLeadById(id: string): Promise<Lead | null> {
 export async function getLeadCounts(): Promise<{
   total: number;
   contacted: number;
-  replied: number;
+  waitingForReply: number;
+  proposalSent: number;
   won: number;
 }> {
   const db = getSupabase();
-  const [totalRes, contactedRes, repliedRes, wonRes] = await Promise.all([
+  const [totalRes, contactedRes, waitingRes, proposalRes, wonRes] = await Promise.all([
     db.from("leads").select("id", { count: "exact", head: true }),
     db.from("leads").select("id", { count: "exact", head: true }).eq("status", "contacted"),
     db.from("leads").select("id", { count: "exact", head: true }).eq("status", "replied"),
+    db.from("leads").select("id", { count: "exact", head: true }).eq("status", "proposal_sent"),
     db.from("leads").select("id", { count: "exact", head: true }).eq("status", "won"),
   ]);
 
   return {
     total: totalRes.count ?? 0,
     contacted: contactedRes.count ?? 0,
-    replied: repliedRes.count ?? 0,
+    waitingForReply: waitingRes.count ?? 0,
+    proposalSent: proposalRes.count ?? 0,
     won: wonRes.count ?? 0,
   };
 }

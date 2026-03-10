@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLeadById } from "@/lib/leads";
 import { DeleteLeadButton } from "@/components/DeleteLeadButton";
-import { STATUSES, CONTACT_CHANNELS } from "@/lib/constants";
+import { STATUSES, CONTACT_CHANNELS, getStatusColor } from "@/lib/constants";
+import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -20,9 +21,6 @@ export default async function LeadDetailPage({ params }: PageProps) {
     STATUSES.find((s) => s.value === value)?.label ?? value;
   const getChannelLabel = (value: string) =>
     CONTACT_CHANNELS.find((c) => c.value === value)?.label ?? value;
-
-  const formatDate = (date: Date | null) =>
-    date ? new Date(date).toLocaleDateString() : "—";
 
   return (
     <div>
@@ -100,7 +98,9 @@ export default async function LeadDetailPage({ params }: PageProps) {
             <div>
               <dt className="text-xs font-medium text-slate-500 dark:text-slate-400">Stav</dt>
               <dd className="mt-1">
-                <span className="inline-flex rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                <span
+                  className={`inline-flex rounded-md px-2 py-0.5 text-xs font-medium ${getStatusColor(lead.status)}`}
+                >
                   {getStatusLabel(lead.status)}
                 </span>
               </dd>

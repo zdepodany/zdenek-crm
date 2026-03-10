@@ -1,6 +1,12 @@
 import Link from "next/link";
 import { getLeads } from "@/lib/leads";
-import { STATUSES } from "@/lib/constants";
+import {
+  STATUSES,
+  getStatusColor,
+  STATUS_FILTER_COLORS,
+  STATUS_FILTER_INACTIVE,
+} from "@/lib/constants";
+import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -13,9 +19,6 @@ export default async function LeadsPage({ searchParams }: PageProps) {
   const statusFilter = status && status !== "all" ? status : undefined;
 
   const leads = await getLeads(statusFilter);
-
-  const formatDate = (date: Date | null) =>
-    date ? new Date(date).toLocaleDateString() : "—";
 
   const getStatusLabel = (value: string) =>
     STATUSES.find((s) => s.value === value)?.label ?? value;
@@ -47,10 +50,10 @@ export default async function LeadsPage({ searchParams }: PageProps) {
       <div className="mb-6 flex flex-wrap gap-1.5">
         <Link
           href="/leads"
-          className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+          className={`rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${
             !statusFilter
-              ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
-              : "bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+              ? "border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900"
+              : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-100"
           }`}
         >
           Vše
@@ -59,10 +62,10 @@ export default async function LeadsPage({ searchParams }: PageProps) {
           <Link
             key={s.value}
             href={`/leads?status=${s.value}`}
-            className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+            className={`rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${
               statusFilter === s.value
-                ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
-                : "bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+                ? STATUS_FILTER_COLORS[s.value]
+                : `border bg-white dark:bg-slate-900 ${STATUS_FILTER_INACTIVE[s.value]}`
             }`}
           >
             {s.label}
@@ -155,7 +158,9 @@ export default async function LeadsPage({ searchParams }: PageProps) {
                       {lead.contactChannel}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4">
-                      <span className="inline-flex rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                      <span
+                        className={`inline-flex rounded-md px-2 py-0.5 text-xs font-medium ${getStatusColor(lead.status)}`}
+                      >
                         {getStatusLabel(lead.status)}
                       </span>
                     </td>

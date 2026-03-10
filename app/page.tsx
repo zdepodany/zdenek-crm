@@ -7,21 +7,35 @@ export default async function DashboardPage() {
   const metrics = await getLeadCounts();
 
   const cards = [
-    { label: "Celkem poptávek", value: metrics.total, href: "/leads" },
+    {
+      label: "Celkem poptávek",
+      value: metrics.total,
+      href: "/leads",
+      color: "border-slate-200/80 dark:border-slate-700/80",
+    },
     {
       label: "Kontaktováno",
       value: metrics.contacted,
       href: "/leads?status=contacted",
+      color: "border-amber-300/60 dark:border-amber-700/60",
     },
     {
-      label: "Odpovědělo",
-      value: metrics.replied,
+      label: "Čeká na odpověď",
+      value: metrics.waitingForReply,
       href: "/leads?status=replied",
+      color: "border-emerald-300/60 dark:border-emerald-700/60",
+    },
+    {
+      label: "Odesláno nabídek",
+      value: metrics.proposalSent,
+      href: "/leads?status=proposal_sent",
+      color: "border-violet-300/60 dark:border-violet-700/60",
     },
     {
       label: "Vyhrané obchody",
       value: metrics.won,
       href: "/leads?status=won",
+      color: "border-green-300/60 dark:border-green-700/60",
     },
   ];
 
@@ -34,12 +48,12 @@ export default async function DashboardPage() {
         Přehled vašeho pipeline poptávek
       </p>
 
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {cards.map((card) => (
           <Link
             key={card.label}
             href={card.href}
-            className="group rounded-xl border border-slate-200/80 bg-white p-6 shadow-sm transition-all hover:border-slate-300/80 hover:shadow-md dark:border-slate-700/80 dark:bg-slate-900 dark:hover:border-slate-600/80"
+            className={`group rounded-xl border bg-white p-6 shadow-sm transition-all hover:shadow-md dark:bg-slate-900 ${card.color}`}
           >
             <p className="text-xs font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500">
               {card.label}
