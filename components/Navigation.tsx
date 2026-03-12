@@ -16,7 +16,7 @@ export function Navigation() {
 
   return (
     <nav className="border-b border-slate-200/80 bg-white dark:border-slate-800 dark:bg-slate-900">
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="flex h-14 w-full items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-8">
           <Link
             href="/"
