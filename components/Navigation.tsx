@@ -9,6 +9,7 @@ const navItems = [
   { href: "/", label: "Přehled" },
   { href: "/leads", label: "Poptávky" },
   { href: "/clients", label: "Klienti" },
+  { href: "/websites", label: "Weby" },
 ];
 
 export function Navigation() {

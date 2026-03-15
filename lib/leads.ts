@@ -30,27 +30,34 @@ export async function getLeadById(id: string): Promise<Lead | null> {
   return data ? toLead(data) : null;
 }
 
-export async function getLeadCounts(): Promise<{
-  total: number;
-  contacted: number;
-  waitingForReply: number;
-  proposalSent: number;
-  won: number;
-}> {
+export async function getLeadCounts(): Promise<
+  Record<string, number> & { total: number }
+> {
   const db = getSupabase();
-  const [totalRes, contactedRes, waitingRes, proposalRes, wonRes] = await Promise.all([
+  const statuses = [
+    "new",
+    "contacted",
+    "replied",
+    "proposal_sent",
+    "negotiation",
+    "won",
+    "lost",
+    "inactive",
+  ];
+
+  const [totalRes, ...statusRes] = await Promise.all([
     db.from("leads").select("id", { count: "exact", head: true }),
-    db.from("leads").select("id", { count: "exact", head: true }).eq("status", "contacted"),
-    db.from("leads").select("id", { count: "exact", head: true }).eq("status", "replied"),
-    db.from("leads").select("id", { count: "exact", head: true }).eq("status", "proposal_sent"),
-    db.from("leads").select("id", { count: "exact", head: true }).eq("status", "won"),
+    ...statuses.map((s) =>
+      db.from("leads").select("id", { count: "exact", head: true }).eq("status", s)
+    ),
   ]);
 
-  return {
+  const counts: Record<string, number> = {
     total: totalRes.count ?? 0,
-    contacted: contactedRes.count ?? 0,
-    waitingForReply: waitingRes.count ?? 0,
-    proposalSent: proposalRes.count ?? 0,
-    won: wonRes.count ?? 0,
   };
+  statuses.forEach((s, i) => {
+    counts[s] = statusRes[i].count ?? 0;
+  });
+
+  return counts as Record<string, number> & { total: number };
 }

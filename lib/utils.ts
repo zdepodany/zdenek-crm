@@ -7,3 +7,12 @@ export function formatDate(date: Date | null): string {
   const year = d.getFullYear();
   return `${day}/${month}/${year}`;
 }
+
+/** Formátuje částku v CZK */
+export function formatCurrency(amount: number | null | undefined): string {
+  if (amount == null) return "—";
+  return new Intl.NumberFormat("cs-CZ", {
+    style: "currency",
+    currency: "CZK",
+  }).format(Number(amount));
+}

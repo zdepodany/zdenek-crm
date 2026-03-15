@@ -3,51 +3,50 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  createClient,
-  updateClient,
-  type ClientFormData,
+  createWebsite,
+  updateWebsite,
+  type WebsiteFormData,
 } from "@/lib/actions";
+import { HOSTING_OPTIONS } from "@/lib/constants";
+import type { Client } from "@/lib/database";
 
-type ClientForForm = {
+type WebsiteForForm = {
   id: string;
-  name: string;
-  contactEmail: string;
-  contactPerson: string;
-  phone: string;
-  web: string;
-  ico: string;
-  cooperationStartDate: Date | null;
+  clientId: string;
+  creationPrice: number | null;
+  hosting: string;
+  url: string;
+  githubRepo: string;
 };
 
-type ClientFormProps = {
-  client?: ClientForForm | null;
+type WebsiteFormProps = {
+  website?: WebsiteForForm | null;
+  clients: Client[];
 };
 
 const inputClass =
   "w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-slate-500 dark:focus:ring-slate-500";
 
-export function ClientForm({ client }: ClientFormProps) {
+export function WebsiteForm({ website, clients }: WebsiteFormProps) {
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
-  const isEditing = !!client;
+  const isEditing = !!website;
 
   async function handleSubmit(formData: FormData) {
-    const data: ClientFormData = {
-      name: formData.get("name") as string,
-      contactEmail: formData.get("contactEmail") as string,
-      contactPerson: formData.get("contactPerson") as string,
-      phone: formData.get("phone") as string,
-      web: formData.get("web") as string,
-      ico: formData.get("ico") as string,
-      cooperationStartDate: formData.get("cooperationStartDate") as string,
+    const data: WebsiteFormData = {
+      clientId: formData.get("clientId") as string,
+      creationPrice: formData.get("creationPrice") as string,
+      hosting: formData.get("hosting") as string,
+      url: formData.get("url") as string,
+      githubRepo: formData.get("githubRepo") as string,
     };
 
-    if (isEditing && client) {
-      await updateClient(client.id, data);
-      router.push(`/clients/${client.id}`);
+    if (isEditing && website) {
+      await updateWebsite(website.id, data);
+      router.push(`/websites/${website.id}`);
     } else {
-      await createClient(data);
-      router.push("/clients");
+      await createWebsite(data);
+      router.push("/websites");
     }
     router.refresh();
   }
@@ -66,82 +65,80 @@ export function ClientForm({ client }: ClientFormProps) {
     <form onSubmit={onSubmit} className="space-y-6">
       <div>
         <label
-          htmlFor="name"
+          htmlFor="clientId"
           className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
         >
-          Jméno
+          Klient
         </label>
-        <input
-          type="text"
-          id="name"
-          name="name"
+        <select
+          id="clientId"
+          name="clientId"
           required
-          defaultValue={client?.name}
+          defaultValue={website?.clientId}
           className={inputClass}
-        />
+        >
+          <option value="">Vyberte klienta</option>
+          {clients.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
           <label
-            htmlFor="contactEmail"
+            htmlFor="creationPrice"
             className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
           >
-            Kontaktní email
+            Cena vytvoření (Kč)
           </label>
           <input
-            type="email"
-            id="contactEmail"
-            name="contactEmail"
-            defaultValue={client?.contactEmail}
+            type="number"
+            id="creationPrice"
+            name="creationPrice"
+            min="0"
+            step="0.01"
+            defaultValue={website?.creationPrice ?? ""}
+            placeholder="0"
             className={inputClass}
           />
         </div>
         <div>
           <label
-            htmlFor="contactPerson"
+            htmlFor="hosting"
             className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
           >
-            Kontaktní osoba
+            Hosting
           </label>
-          <input
-            type="text"
-            id="contactPerson"
-            name="contactPerson"
-            defaultValue={client?.contactPerson}
+          <select
+            id="hosting"
+            name="hosting"
+            defaultValue={website?.hosting ?? "github_pages"}
             className={inputClass}
-          />
+          >
+            {HOSTING_OPTIONS.map((h) => (
+              <option key={h.value} value={h.value}>
+                {h.label}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
       <div>
         <label
-          htmlFor="phone"
+          htmlFor="url"
           className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
         >
-          Telefonní číslo
-        </label>
-        <input
-          type="tel"
-          id="phone"
-          name="phone"
-          defaultValue={client?.phone}
-          className={inputClass}
-        />
-      </div>
-
-      <div>
-        <label
-          htmlFor="web"
-          className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
-        >
-          Web
+          Adresa webu
         </label>
         <input
           type="url"
-          id="web"
-          name="web"
-          defaultValue={client?.web}
+          id="url"
+          name="url"
+          defaultValue={website?.url}
           placeholder="https://"
           className={inputClass}
         />
@@ -149,36 +146,17 @@ export function ClientForm({ client }: ClientFormProps) {
 
       <div>
         <label
-          htmlFor="ico"
+          htmlFor="githubRepo"
           className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
         >
-          IČO
+          Odkaz na Github repo
         </label>
         <input
-          type="text"
-          id="ico"
-          name="ico"
-          defaultValue={client?.ico}
-          className={inputClass}
-        />
-      </div>
-
-      <div>
-        <label
-          htmlFor="cooperationStartDate"
-          className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
-        >
-          Datum začátku spolupráce
-        </label>
-        <input
-          type="date"
-          id="cooperationStartDate"
-          name="cooperationStartDate"
-          defaultValue={
-            client?.cooperationStartDate
-              ? new Date(client.cooperationStartDate).toISOString().split("T")[0]
-              : ""
-          }
+          type="url"
+          id="githubRepo"
+          name="githubRepo"
+          defaultValue={website?.githubRepo}
+          placeholder="https://github.com/..."
           className={inputClass}
         />
       </div>
@@ -217,7 +195,7 @@ export function ClientForm({ client }: ClientFormProps) {
           ) : isEditing ? (
             "Uložit změny"
           ) : (
-            "Přidat klienta"
+            "Přidat web"
           )}
         </button>
         <button

@@ -1,33 +1,37 @@
 import Link from "next/link";
-import { getClients } from "@/lib/clients";
-import { formatDate } from "@/lib/utils";
+import { getWebsites } from "@/lib/websites";
+import { HOSTING_OPTIONS } from "@/lib/constants";
+import { formatCurrency } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-export default async function ClientsPage() {
-  const clients = await getClients();
+export default async function WebsitesPage() {
+  const websites = await getWebsites();
+
+  const getHostingLabel = (value: string) =>
+    HOSTING_OPTIONS.find((h) => h.value === value)?.label ?? value;
 
   return (
     <div>
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-            Klienti
+            Spuštěné weby
           </h1>
           <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            Celkem {clients.length}{" "}
-            {clients.length === 1
-              ? "klient"
-              : clients.length >= 2 && clients.length <= 4
-                ? "klienti"
-                : "klientů"}
+            Celkem {websites.length}{" "}
+            {websites.length === 1
+              ? "web"
+              : websites.length >= 2 && websites.length <= 4
+                ? "weby"
+                : "webů"}
           </p>
         </div>
         <Link
-          href="/clients/new"
+          href="/websites/new"
           className="inline-flex items-center justify-center rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-slate-200"
         >
-          Nový klient
+          Nový web
         </Link>
       </div>
 
@@ -37,25 +41,16 @@ export default async function ClientsPage() {
             <thead>
               <tr className="border-b border-slate-200/80 dark:border-slate-700/80">
                 <th className="px-6 py-4 text-left text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
-                  Jméno
+                  Adresa webu
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
-                  Kontaktní osoba
+                  Klient
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
-                  Kontaktní email
+                  Hosting
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
-                  Telefon
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
-                  Web
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
-                  IČO
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
-                  Začátek spolupráce
+                  Cena vytvoření
                 </th>
                 <th className="px-6 py-4 text-right text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
                   Akce
@@ -63,67 +58,61 @@ export default async function ClientsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {clients.length === 0 ? (
+              {websites.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={8}
+                    colSpan={5}
                     className="px-6 py-16 text-center text-sm text-slate-500 dark:text-slate-400"
                   >
-                    Žádní klienti.{" "}
+                    Žádné weby.{" "}
                     <Link
-                      href="/clients/new"
+                      href="/websites/new"
                       className="font-medium text-slate-900 underline-offset-4 hover:underline dark:text-slate-200 dark:hover:text-slate-100"
                     >
-                      Přidejte prvního klienta
+                      Přidejte první web
                     </Link>
                   </td>
                 </tr>
               ) : (
-                clients.map((client) => (
+                websites.map((web) => (
                   <tr
-                    key={client.id}
+                    key={web.id}
                     className="group transition-colors hover:bg-slate-50/80 dark:hover:bg-slate-800/50"
                   >
-                    <td className="whitespace-nowrap px-6 py-4">
-                      <Link
-                        href={`/clients/${client.id}`}
-                        className="font-medium text-slate-900 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300"
-                      >
-                        {client.name}
-                      </Link>
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                      {client.contactPerson || "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                      {client.contactEmail || "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                      {client.phone || "—"}
-                    </td>
-                    <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                      {client.web ? (
-                        <a
-                          href={client.web}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+                    <td className="px-6 py-4">
+                      {web.url ? (
+                        <Link
+                          href={`/websites/${web.id}`}
+                          className="font-medium text-slate-900 hover:text-slate-700 dark:text-slate-100 dark:hover:text-slate-300"
                         >
-                          {client.web.replace(/^https?:\/\//, "")}
-                        </a>
+                          {web.url.replace(/^https?:\/\//, "")}
+                        </Link>
                       ) : (
-                        <span className="text-slate-400 dark:text-slate-500">—</span>
+                        <Link
+                          href={`/websites/${web.id}`}
+                          className="font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
+                        >
+                          (bez adresy)
+                        </Link>
                       )}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                      {client.ico || "—"}
+                      <Link
+                        href={`/clients/${web.clientId}`}
+                        className="hover:text-slate-900 dark:hover:text-slate-200"
+                      >
+                        {web.clientName}
+                      </Link>
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                      {formatDate(client.cooperationStartDate)}
+                      {getHostingLabel(web.hosting)}
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                      {formatCurrency(web.creationPrice)}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-right">
                       <Link
-                        href={`/clients/${client.id}`}
+                        href={`/websites/${web.id}`}
                         className="text-sm font-medium text-slate-400 transition-colors hover:text-slate-900 dark:text-slate-500 dark:hover:text-slate-200"
                       >
                         Zobrazit →

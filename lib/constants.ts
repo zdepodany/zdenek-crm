@@ -67,3 +67,23 @@ export function getStatusColor(status: string): string {
 
 export type ContactChannel = (typeof CONTACT_CHANNELS)[number]["value"];
 export type Status = (typeof STATUSES)[number]["value"];
+
+export const HOSTING_OPTIONS = [
+  { value: "github_pages", label: "Github Pages" },
+  { value: "hukot_cz", label: "Hukot.cz" },
+] as const;
+
+export const WEB_EVENT_TYPES: {
+  value: string;
+  label: string;
+  fields: string[];
+}[] = [
+  { value: "launch", label: "Spuštění webu", fields: ["date", "link"] },
+  { value: "edit", label: "Úprava webu", fields: ["date", "note"] },
+  { value: "shutdown", label: "Vypnutí webu", fields: ["date", "note"] },
+  { value: "handover", label: "Předání webu", fields: ["date", "note"] },
+  { value: "billing", label: "Fakturace", fields: ["date", "amount", "note"] },
+];
+
+export type HostingOption = (typeof HOSTING_OPTIONS)[number]["value"];
+export type WebEventType = (typeof WEB_EVENT_TYPES)[number]["value"];

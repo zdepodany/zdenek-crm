@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getClientById } from "@/lib/clients";
+import { getWebsitesByClientId } from "@/lib/websites";
 import { DeleteClientButton } from "@/components/DeleteClientButton";
 import { formatDate } from "@/lib/utils";
 
@@ -12,7 +13,10 @@ type PageProps = {
 
 export default async function ClientDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const client = await getClientById(id);
+  const [client, websites] = await Promise.all([
+    getClientById(id),
+    getWebsitesByClientId(id),
+  ]);
 
   if (!client) notFound();
 
@@ -64,6 +68,31 @@ export default async function ClientDetailPage({ params }: PageProps) {
           </div>
           <div>
             <dt className="text-xs font-medium text-slate-500 dark:text-slate-400">
+              Kontaktní osoba
+            </dt>
+            <dd className="mt-1 text-sm text-slate-900 dark:text-slate-100">
+              {client.contactPerson || "—"}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs font-medium text-slate-500 dark:text-slate-400">
+              Telefonní číslo
+            </dt>
+            <dd className="mt-1 text-sm text-slate-900 dark:text-slate-100">
+              {client.phone ? (
+                <a
+                  href={`tel:${client.phone}`}
+                  className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+                >
+                  {client.phone}
+                </a>
+              ) : (
+                "—"
+              )}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs font-medium text-slate-500 dark:text-slate-400">
               Web
             </dt>
             <dd className="mt-1 text-sm">
@@ -99,6 +128,26 @@ export default async function ClientDetailPage({ params }: PageProps) {
           </div>
         </dl>
       </div>
+
+      {websites.length > 0 && (
+        <div className="mt-8 rounded-xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-700/80 dark:bg-slate-900">
+          <h2 className="mb-5 text-sm font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            Spuštěné weby
+          </h2>
+          <ul className="space-y-2">
+            {websites.map((web) => (
+              <li key={web.id}>
+                <Link
+                  href={`/websites/${web.id}`}
+                  className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+                >
+                  {web.url ? web.url.replace(/^https?:\/\//, "") : "(bez adresy)"}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
