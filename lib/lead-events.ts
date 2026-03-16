@@ -1,6 +1,32 @@
 import { getSupabase } from "./supabase";
 import { toLeadEvent, type LeadEvent } from "./database";
 
+const CONTACT_EVENT_TYPES = ["contact_initiated", "contact_received", "reply_received"];
+
+export async function getLastContactDates(
+  leadIds: string[]
+): Promise<Record<string, Date>> {
+  if (leadIds.length === 0) return {};
+
+  const { data, error } = await getSupabase()
+    .from("lead_events")
+    .select("lead_id, date")
+    .in("lead_id", leadIds)
+    .in("type", CONTACT_EVENT_TYPES)
+    .order("date", { ascending: false });
+
+  if (error) throw error;
+
+  const result: Record<string, Date> = {};
+  for (const row of data ?? []) {
+    const r = row as { lead_id: string; date: string };
+    if (!result[r.lead_id]) {
+      result[r.lead_id] = new Date(r.date);
+    }
+  }
+  return result;
+}
+
 export async function getLeadEvents(leadId: string): Promise<LeadEvent[]> {
   const { data, error } = await getSupabase()
     .from("lead_events")

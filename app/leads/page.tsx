@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { getLeads } from "@/lib/leads";
+import { getLastContactDates } from "@/lib/lead-events";
 import {
   STATUSES,
   getStatusColor,
   STATUS_FILTER_COLORS,
   STATUS_FILTER_INACTIVE,
 } from "@/lib/constants";
-import { formatDate } from "@/lib/utils";
-import { SortableHeader } from "@/components/SortableHeader";
+import { formatDate, formatDaysAgo, daysAgo } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -27,12 +27,16 @@ function buildLeadsUrl(params: { status?: string; sort?: string; order?: string 
 export default async function LeadsPage({ searchParams }: PageProps) {
   const { status, sort, order } = await searchParams;
   const statusFilter = status && status !== "all" ? status : undefined;
-  const sortBy = (sort === "contacted_at" || sort === "updated_at" ? sort : "contacted_at") as
+  const sortBy = (sort === "contacted_at" || sort === "updated_at" ? sort : "updated_at") as
     | "contacted_at"
     | "updated_at";
   const sortOrder = order === "asc" ? "asc" : "desc";
 
   const leads = await getLeads(statusFilter, sortBy, sortOrder);
+  const lastContact =
+    leads.length > 0
+      ? await getLastContactDates(leads.map((l) => l.id))
+      : {};
 
   const getStatusLabel = (value: string) =>
     STATUSES.find((s) => s.value === value)?.label ?? value;
@@ -63,7 +67,7 @@ export default async function LeadsPage({ searchParams }: PageProps) {
 
       <div className="mb-6 flex flex-wrap gap-1.5">
         <Link
-          href={buildLeadsUrl({ sort: sortBy, order: sortOrder })}
+          href={buildLeadsUrl({ status: statusFilter, sort: sortBy, order: sortOrder })}
           className={`rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${
             !statusFilter
               ? "border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900"
@@ -96,31 +100,13 @@ export default async function LeadsPage({ searchParams }: PageProps) {
                   Firma
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
-                  Město
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
                   Web
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
-                  Kontakt
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
-                  Kanál
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
                   Stav
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
-                  <SortableHeader
-                    label="Kontaktován"
-                    href={buildLeadsUrl({
-                      status: statusFilter,
-                      sort: "contacted_at",
-                      order: sortBy === "contacted_at" && sortOrder === "desc" ? "asc" : "desc",
-                    })}
-                    isActive={sortBy === "contacted_at"}
-                    order={sortBy === "contacted_at" ? sortOrder : "desc"}
-                  />
+                  Poslední kontakt
                 </th>
                 <th className="px-6 py-4 text-right text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
                   Akce
@@ -131,7 +117,7 @@ export default async function LeadsPage({ searchParams }: PageProps) {
               {leads.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={8}
+                    colSpan={5}
                     className="px-6 py-16 text-center text-sm text-slate-500 dark:text-slate-400"
                   >
                     Žádné poptávky.{" "}
@@ -157,9 +143,6 @@ export default async function LeadsPage({ searchParams }: PageProps) {
                         {lead.companyName}
                       </Link>
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                      {lead.city}
-                    </td>
                     <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
                       {lead.website ? (
                         <a
@@ -174,12 +157,6 @@ export default async function LeadsPage({ searchParams }: PageProps) {
                         <span className="text-slate-400 dark:text-slate-500">—</span>
                       )}
                     </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                      {lead.contact || "—"}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm capitalize text-slate-600 dark:text-slate-400">
-                      {lead.contactChannel}
-                    </td>
                     <td className="whitespace-nowrap px-6 py-4">
                       <span
                         className={`inline-flex rounded-md px-2 py-0.5 text-xs font-medium ${getStatusColor(lead.status)}`}
@@ -188,7 +165,16 @@ export default async function LeadsPage({ searchParams }: PageProps) {
                       </span>
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
-                      {formatDate(lead.contactedAt)}
+                      {lastContact[lead.id] ? (
+                        <>
+                          {formatDate(lastContact[lead.id])}{" "}
+                          <span className="text-slate-400 dark:text-slate-500">
+                            ({formatDaysAgo(daysAgo(lastContact[lead.id]))})
+                          </span>
+                        </>
+                      ) : (
+                        "—"
+                      )}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-right">
                       <Link
