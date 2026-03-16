@@ -1,11 +1,30 @@
 import Link from "next/link";
 import { getClients } from "@/lib/clients";
 import { formatDate } from "@/lib/utils";
+import { SortableHeader } from "@/components/SortableHeader";
 
 export const dynamic = "force-dynamic";
 
-export default async function ClientsPage() {
-  const clients = await getClients();
+type PageProps = {
+  searchParams: Promise<{ sort?: string; order?: string }>;
+};
+
+function buildClientsUrl(params: { sort?: string; order?: string }) {
+  const search = new URLSearchParams();
+  if (params.sort) search.set("sort", params.sort);
+  if (params.order) search.set("order", params.order);
+  const q = search.toString();
+  return `/clients${q ? `?${q}` : ""}`;
+}
+
+export default async function ClientsPage({ searchParams }: PageProps) {
+  const { sort, order } = await searchParams;
+  const sortBy = (sort === "cooperation_start_date" || sort === "updated_at"
+    ? sort
+    : "cooperation_start_date") as "cooperation_start_date" | "updated_at";
+  const sortOrder = order === "asc" ? "asc" : "desc";
+
+  const clients = await getClients(sortBy, sortOrder);
 
   return (
     <div>
@@ -55,7 +74,16 @@ export default async function ClientsPage() {
                   IČO
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
-                  Začátek spolupráce
+                  <SortableHeader
+                    label="Začátek spolupráce"
+                    href={buildClientsUrl({
+                      sort: "cooperation_start_date",
+                      order:
+                        sortBy === "cooperation_start_date" && sortOrder === "desc" ? "asc" : "desc",
+                    })}
+                    isActive={sortBy === "cooperation_start_date"}
+                    order={sortBy === "cooperation_start_date" ? sortOrder : "desc"}
+                  />
                 </th>
                 <th className="px-6 py-4 text-right text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
                   Akce

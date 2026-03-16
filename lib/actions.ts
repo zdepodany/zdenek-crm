@@ -225,3 +225,46 @@ export async function deleteWebEventAction(formData: FormData) {
   const webId = formData.get("webId") as string;
   if (id && webId) await deleteWebEvent(id, webId);
 }
+
+// Lead event actions
+export type LeadEventFormData = {
+  type: string;
+  date: string;
+  method: string;
+  note: string;
+  webId: string;
+  clientId: string;
+};
+
+export async function createLeadEvent(leadId: string, data: LeadEventFormData) {
+  const payload: Record<string, unknown> = {
+    lead_id: leadId,
+    type: data.type,
+    date: data.date,
+  };
+  if (data.method) payload.method = data.method;
+  if (data.note) payload.note = data.note;
+  if (data.webId) payload.web_id = data.webId;
+  if (data.clientId) payload.client_id = data.clientId;
+
+  const { error } = await getSupabase().from("lead_events").insert(payload);
+
+  if (error) throw error;
+  revalidatePath(`/leads/${leadId}`);
+  revalidatePath("/leads");
+}
+
+export async function deleteLeadEvent(id: string, leadId: string) {
+  const { error } = await getSupabase().from("lead_events").delete().eq("id", id);
+
+  if (error) throw error;
+  revalidatePath(`/leads/${leadId}`);
+  revalidatePath("/leads");
+}
+
+export async function deleteLeadEventAction(formData: FormData) {
+  "use server";
+  const id = formData.get("id") as string;
+  const leadId = formData.get("leadId") as string;
+  if (id && leadId) await deleteLeadEvent(id, leadId);
+}

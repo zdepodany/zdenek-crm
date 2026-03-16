@@ -95,3 +95,25 @@ export const WEB_EVENT_TYPES: {
 
 export type HostingOption = (typeof HOSTING_OPTIONS)[number]["value"];
 export type WebEventType = (typeof WEB_EVENT_TYPES)[number]["value"];
+
+export const LEAD_EVENT_CONTACT_METHODS = [
+  { value: "osobne", label: "Osobně" },
+  { value: "email", label: "Email" },
+  { value: "sms", label: "SMS" },
+  { value: "telefonicky", label: "Telefonicky" },
+  { value: "instagram", label: "Instagram" },
+  { value: "facebook", label: "Facebook" },
+] as const;
+
+export const LEAD_EVENT_TYPES: {
+  value: string;
+  label: string;
+  fields: string[];
+}[] = [
+  { value: "contact_initiated", label: "Kontaktoval jsem je", fields: ["date", "method", "note"] },
+  { value: "contact_received", label: "Kontaktovali mě", fields: ["date", "method", "note"] },
+  { value: "reply_received", label: "Odpověděli mi", fields: ["date", "method", "note"] },
+  { value: "proposal_sent", label: "Poslal jsem návrh", fields: ["date", "note"] },
+  { value: "rejected", label: "Odmítli mě", fields: ["date", "note"] },
+  { value: "completed", label: "Dokončili jsme poptávku", fields: ["date", "web", "client", "note"] },
+];

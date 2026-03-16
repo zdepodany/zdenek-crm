@@ -1,15 +1,23 @@
 import { getSupabase } from "./supabase";
 import { toLead, type Lead } from "./database";
 
-export async function getLeads(statusFilter?: string): Promise<Lead[]> {
-  let query = getSupabase()
-    .from("leads")
-    .select("*")
-    .order("updated_at", { ascending: false });
+export type LeadSortField = "contacted_at" | "updated_at";
+
+export async function getLeads(
+  statusFilter?: string,
+  sortBy: LeadSortField = "contacted_at",
+  sortOrder: "asc" | "desc" = "desc"
+): Promise<Lead[]> {
+  let query = getSupabase().from("leads").select("*");
 
   if (statusFilter) {
     query = query.eq("status", statusFilter);
   }
+
+  query = query.order(sortBy, {
+    ascending: sortOrder === "asc",
+    nullsFirst: false,
+  });
 
   const { data, error } = await query;
   if (error) throw error;

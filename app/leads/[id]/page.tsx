@@ -1,8 +1,19 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLeadById } from "@/lib/leads";
+import { getLeadEvents } from "@/lib/lead-events";
+import { getWebsites } from "@/lib/websites";
+import { getClients } from "@/lib/clients";
 import { DeleteLeadButton } from "@/components/DeleteLeadButton";
-import { STATUSES, CONTACT_CHANNELS, getStatusColor } from "@/lib/constants";
+import { LeadEventForm } from "@/components/LeadEventForm";
+import { DeleteLeadEventButton } from "@/components/DeleteLeadEventButton";
+import {
+  STATUSES,
+  CONTACT_CHANNELS,
+  LEAD_EVENT_TYPES,
+  LEAD_EVENT_CONTACT_METHODS,
+  getStatusColor,
+} from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -13,7 +24,12 @@ type PageProps = {
 
 export default async function LeadDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const lead = await getLeadById(id);
+  const [lead, events, websites, clients] = await Promise.all([
+    getLeadById(id),
+    getLeadEvents(id),
+    getWebsites(),
+    getClients(),
+  ]);
 
   if (!lead) notFound();
 
@@ -21,6 +37,10 @@ export default async function LeadDetailPage({ params }: PageProps) {
     STATUSES.find((s) => s.value === value)?.label ?? value;
   const getChannelLabel = (value: string) =>
     CONTACT_CHANNELS.find((c) => c.value === value)?.label ?? value;
+  const getEventTypeLabel = (value: string) =>
+    LEAD_EVENT_TYPES.find((t) => t.value === value)?.label ?? value;
+  const getMethodLabel = (value: string) =>
+    LEAD_EVENT_CONTACT_METHODS.find((m) => m.value === value)?.label ?? value;
 
   return (
     <div>
@@ -124,6 +144,85 @@ export default async function LeadDetailPage({ params }: PageProps) {
             {lead.notes || "Zatím žádné poznámky."}
           </p>
         </div>
+
+        <div className="rounded-xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-700/80 dark:bg-slate-900 lg:col-span-2">
+          <h2 className="mb-5 text-sm font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500">
+            Přidat akci
+          </h2>
+          <LeadEventForm leadId={lead.id} websites={websites} clients={clients} />
+        </div>
+      </div>
+
+      <div className="mt-8 rounded-xl border border-slate-200/80 bg-white p-6 shadow-sm dark:border-slate-700/80 dark:bg-slate-900">
+        <h2 className="mb-5 text-sm font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500">
+          Historie akcí
+        </h2>
+        {events.length === 0 ? (
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Zatím žádné akce. Přidejte první akci výše.
+          </p>
+        ) : (
+          <div className="space-y-4">
+            {events.map((event) => {
+              const web = event.webId
+                ? websites.find((w) => w.id === event.webId)
+                : null;
+              const client = event.clientId
+                ? clients.find((c) => c.id === event.clientId)
+                : null;
+              return (
+                <div
+                  key={event.id}
+                  className="flex items-start justify-between gap-4 rounded-lg border border-slate-100 bg-slate-50/50 p-4 dark:border-slate-800 dark:bg-slate-800/30"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-medium text-slate-900 dark:text-slate-100">
+                        {getEventTypeLabel(event.type)}
+                      </span>
+                      <span className="text-sm text-slate-500 dark:text-slate-400">
+                        {formatDate(event.date)}
+                      </span>
+                      {event.method && (
+                        <span className="text-sm text-slate-600 dark:text-slate-400">
+                          ({getMethodLabel(event.method)})
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-1 space-y-0.5 text-sm text-slate-600 dark:text-slate-400">
+                      {web && (
+                        <p>
+                          Web:{" "}
+                          <Link
+                            href={`/websites/${web.id}`}
+                            className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+                          >
+                            {web.url ? web.url.replace(/^https?:\/\//, "") : "(bez adresy)"}
+                          </Link>
+                        </p>
+                      )}
+                      {client && (
+                        <p>
+                          Klient:{" "}
+                          <Link
+                            href={`/clients/${client.id}`}
+                            className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+                          >
+                            {client.name}
+                          </Link>
+                        </p>
+                      )}
+                      {event.note && (
+                        <p className="whitespace-pre-wrap">{event.note}</p>
+                      )}
+                    </div>
+                  </div>
+                  <DeleteLeadEventButton eventId={event.id} leadId={lead.id} />
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

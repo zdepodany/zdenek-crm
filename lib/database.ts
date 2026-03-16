@@ -97,6 +97,7 @@ export type Website = {
   domainProvider: string;
   url: string;
   githubRepo: string;
+  updatedAt: Date | null;
 };
 
 export type WebsiteWithClient = Website & {
@@ -112,6 +113,7 @@ export function toWebsite(row: WebsiteRow, clientName?: string): Website | Websi
     domainProvider: row.domain_provider ?? "",
     url: row.url,
     githubRepo: row.github_repo,
+    updatedAt: row.updated_at ? new Date(row.updated_at) : null,
   };
   if (clientName) {
     return { ...base, clientName };
@@ -149,5 +151,41 @@ export function toWebEvent(row: WebEventRow): WebEvent {
     link: row.link,
     note: row.note,
     amount: row.amount != null ? Number(row.amount) : null,
+  };
+}
+
+export type LeadEventRow = {
+  id: string;
+  lead_id: string;
+  type: string;
+  date: string;
+  method: string | null;
+  note: string | null;
+  web_id: string | null;
+  client_id: string | null;
+  created_at?: string;
+};
+
+export type LeadEvent = {
+  id: string;
+  leadId: string;
+  type: string;
+  date: Date;
+  method: string | null;
+  note: string | null;
+  webId: string | null;
+  clientId: string | null;
+};
+
+export function toLeadEvent(row: LeadEventRow): LeadEvent {
+  return {
+    id: row.id,
+    leadId: row.lead_id,
+    type: row.type,
+    date: new Date(row.date),
+    method: row.method,
+    note: row.note,
+    webId: row.web_id,
+    clientId: row.client_id,
   };
 }

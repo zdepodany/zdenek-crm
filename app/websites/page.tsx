@@ -1,12 +1,31 @@
 import Link from "next/link";
 import { getWebsites } from "@/lib/websites";
 import { HOSTING_OPTIONS, DOMAIN_PROVIDERS } from "@/lib/constants";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, formatDate } from "@/lib/utils";
+import { SortableHeader } from "@/components/SortableHeader";
 
 export const dynamic = "force-dynamic";
 
-export default async function WebsitesPage() {
-  const websites = await getWebsites();
+type PageProps = {
+  searchParams: Promise<{ sort?: string; order?: string }>;
+};
+
+function buildWebsitesUrl(params: { sort?: string; order?: string }) {
+  const search = new URLSearchParams();
+  if (params.sort) search.set("sort", params.sort);
+  if (params.order) search.set("order", params.order);
+  const q = search.toString();
+  return `/websites${q ? `?${q}` : ""}`;
+}
+
+export default async function WebsitesPage({ searchParams }: PageProps) {
+  const { sort, order } = await searchParams;
+  const sortBy = (sort === "updated_at" || sort === "created_at" ? sort : "updated_at") as
+    | "updated_at"
+    | "created_at";
+  const sortOrder = order === "asc" ? "asc" : "desc";
+
+  const websites = await getWebsites(sortBy, sortOrder);
 
   const getHostingLabel = (value: string) =>
     HOSTING_OPTIONS.find((h) => h.value === value)?.label ?? value;
@@ -57,6 +76,17 @@ export default async function WebsitesPage() {
                 <th className="px-6 py-4 text-left text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
                   Cena vytvoření
                 </th>
+                <th className="px-6 py-4 text-left text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
+                  <SortableHeader
+                    label="Aktualizováno"
+                    href={buildWebsitesUrl({
+                      sort: "updated_at",
+                      order: sortBy === "updated_at" && sortOrder === "desc" ? "asc" : "desc",
+                    })}
+                    isActive={sortBy === "updated_at"}
+                    order={sortBy === "updated_at" ? sortOrder : "desc"}
+                  />
+                </th>
                 <th className="px-6 py-4 text-right text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
                   Akce
                 </th>
@@ -66,7 +96,7 @@ export default async function WebsitesPage() {
               {websites.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="px-6 py-16 text-center text-sm text-slate-500 dark:text-slate-400"
                   >
                     Žádné weby.{" "}
@@ -117,6 +147,9 @@ export default async function WebsitesPage() {
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
                       {formatCurrency(web.creationPrice)}
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                      {formatDate(web.updatedAt)}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-right">
                       <Link

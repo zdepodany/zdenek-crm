@@ -7,18 +7,32 @@ import {
   STATUS_FILTER_INACTIVE,
 } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
+import { SortableHeader } from "@/components/SortableHeader";
 
 export const dynamic = "force-dynamic";
 
 type PageProps = {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<{ status?: string; sort?: string; order?: string }>;
 };
 
-export default async function LeadsPage({ searchParams }: PageProps) {
-  const { status } = await searchParams;
-  const statusFilter = status && status !== "all" ? status : undefined;
+function buildLeadsUrl(params: { status?: string; sort?: string; order?: string }) {
+  const search = new URLSearchParams();
+  if (params.status) search.set("status", params.status);
+  if (params.sort) search.set("sort", params.sort);
+  if (params.order) search.set("order", params.order);
+  const q = search.toString();
+  return `/leads${q ? `?${q}` : ""}`;
+}
 
-  const leads = await getLeads(statusFilter);
+export default async function LeadsPage({ searchParams }: PageProps) {
+  const { status, sort, order } = await searchParams;
+  const statusFilter = status && status !== "all" ? status : undefined;
+  const sortBy = (sort === "contacted_at" || sort === "updated_at" ? sort : "contacted_at") as
+    | "contacted_at"
+    | "updated_at";
+  const sortOrder = order === "asc" ? "asc" : "desc";
+
+  const leads = await getLeads(statusFilter, sortBy, sortOrder);
 
   const getStatusLabel = (value: string) =>
     STATUSES.find((s) => s.value === value)?.label ?? value;
@@ -49,7 +63,7 @@ export default async function LeadsPage({ searchParams }: PageProps) {
 
       <div className="mb-6 flex flex-wrap gap-1.5">
         <Link
-          href="/leads"
+          href={buildLeadsUrl({ sort: sortBy, order: sortOrder })}
           className={`rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${
             !statusFilter
               ? "border-slate-900 bg-slate-900 text-white dark:border-slate-100 dark:bg-slate-100 dark:text-slate-900"
@@ -61,7 +75,7 @@ export default async function LeadsPage({ searchParams }: PageProps) {
         {STATUSES.map((s) => (
           <Link
             key={s.value}
-            href={`/leads?status=${s.value}`}
+            href={buildLeadsUrl({ status: s.value, sort: sortBy, order: sortOrder })}
             className={`rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${
               statusFilter === s.value
                 ? STATUS_FILTER_COLORS[s.value]
@@ -97,7 +111,16 @@ export default async function LeadsPage({ searchParams }: PageProps) {
                   Stav
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
-                  Kontaktován
+                  <SortableHeader
+                    label="Kontaktován"
+                    href={buildLeadsUrl({
+                      status: statusFilter,
+                      sort: "contacted_at",
+                      order: sortBy === "contacted_at" && sortOrder === "desc" ? "asc" : "desc",
+                    })}
+                    isActive={sortBy === "contacted_at"}
+                    order={sortBy === "contacted_at" ? sortOrder : "desc"}
+                  />
                 </th>
                 <th className="px-6 py-4 text-right text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
                   Akce

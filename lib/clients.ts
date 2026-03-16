@@ -1,11 +1,19 @@
 import { getSupabase } from "./supabase";
 import { toClient, type Client } from "./database";
 
-export async function getClients(): Promise<Client[]> {
+export type ClientSortField = "cooperation_start_date" | "updated_at";
+
+export async function getClients(
+  sortBy: ClientSortField = "cooperation_start_date",
+  sortOrder: "asc" | "desc" = "desc"
+): Promise<Client[]> {
   const { data, error } = await getSupabase()
     .from("clients")
     .select("*")
-    .order("updated_at", { ascending: false });
+    .order(sortBy, {
+      ascending: sortOrder === "asc",
+      nullsFirst: false,
+    });
 
   if (error) throw error;
   return (data ?? []).map(toClient);

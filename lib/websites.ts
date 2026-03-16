@@ -15,6 +15,7 @@ type WebsiteRowWithClient = {
   domain_provider: string;
   url: string;
   github_repo: string;
+  updated_at: string;
   clients: { name: string } | null;
 };
 
@@ -47,11 +48,19 @@ export async function getTotalEarnings(): Promise<number> {
   return total;
 }
 
-export async function getWebsites(): Promise<WebsiteWithClient[]> {
+export type WebsiteSortField = "updated_at" | "created_at";
+
+export async function getWebsites(
+  sortBy: WebsiteSortField = "updated_at",
+  sortOrder: "asc" | "desc" = "desc"
+): Promise<WebsiteWithClient[]> {
   const { data, error } = await getSupabase()
     .from("websites")
     .select("*, clients(name)")
-    .order("updated_at", { ascending: false });
+    .order(sortBy, {
+      ascending: sortOrder === "asc",
+      nullsFirst: false,
+    });
 
   if (error) throw error;
   return (data ?? []).map((row: WebsiteRowWithClient) =>
