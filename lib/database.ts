@@ -82,6 +82,7 @@ export type WebsiteRow = {
   client_id: string;
   creation_price: number | null;
   hosting: string;
+  domain_provider: string;
   url: string;
   github_repo: string;
   created_at?: string;
@@ -93,6 +94,7 @@ export type Website = {
   clientId: string;
   creationPrice: number | null;
   hosting: string;
+  domainProvider: string;
   url: string;
   githubRepo: string;
 };
@@ -107,6 +109,7 @@ export function toWebsite(row: WebsiteRow, clientName?: string): Website | Websi
     clientId: row.client_id,
     creationPrice: row.creation_price != null ? Number(row.creation_price) : null,
     hosting: row.hosting,
+    domainProvider: row.domain_provider ?? "",
     url: row.url,
     githubRepo: row.github_repo,
   };

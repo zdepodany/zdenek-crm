@@ -131,6 +131,7 @@ export type WebsiteFormData = {
   clientId: string;
   creationPrice: string;
   hosting: string;
+  domainProvider: string;
   url: string;
   githubRepo: string;
 };
@@ -140,6 +141,7 @@ export async function createWebsite(data: WebsiteFormData) {
     client_id: data.clientId,
     creation_price: data.creationPrice ? parseFloat(data.creationPrice) : null,
     hosting: data.hosting,
+    domain_provider: data.domainProvider || "",
     url: data.url,
     github_repo: data.githubRepo,
   });
@@ -156,6 +158,7 @@ export async function updateWebsite(id: string, data: WebsiteFormData) {
       client_id: data.clientId,
       creation_price: data.creationPrice ? parseFloat(data.creationPrice) : null,
       hosting: data.hosting,
+      domain_provider: data.domainProvider || "",
       url: data.url,
       github_repo: data.githubRepo,
       updated_at: new Date().toISOString(),

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getWebsites } from "@/lib/websites";
-import { HOSTING_OPTIONS } from "@/lib/constants";
+import { HOSTING_OPTIONS, DOMAIN_PROVIDERS } from "@/lib/constants";
 import { formatCurrency } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -10,6 +10,8 @@ export default async function WebsitesPage() {
 
   const getHostingLabel = (value: string) =>
     HOSTING_OPTIONS.find((h) => h.value === value)?.label ?? value;
+  const getDomainProviderLabel = (value: string) =>
+    DOMAIN_PROVIDERS.find((p) => p.value === value)?.label ?? (value || "—");
 
   return (
     <div>
@@ -50,6 +52,9 @@ export default async function WebsitesPage() {
                   Hosting
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
+                  Poskytovatel domény
+                </th>
+                <th className="px-6 py-4 text-left text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
                   Cena vytvoření
                 </th>
                 <th className="px-6 py-4 text-right text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
@@ -61,7 +66,7 @@ export default async function WebsitesPage() {
               {websites.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="px-6 py-16 text-center text-sm text-slate-500 dark:text-slate-400"
                   >
                     Žádné weby.{" "}
@@ -106,6 +111,9 @@ export default async function WebsitesPage() {
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
                       {getHostingLabel(web.hosting)}
+                    </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
+                      {getDomainProviderLabel(web.domainProvider)}
                     </td>
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-slate-600 dark:text-slate-400">
                       {formatCurrency(web.creationPrice)}

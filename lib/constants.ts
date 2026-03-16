@@ -71,6 +71,14 @@ export type Status = (typeof STATUSES)[number]["value"];
 export const HOSTING_OPTIONS = [
   { value: "github_pages", label: "Github Pages" },
   { value: "hukot_cz", label: "Hukot.cz" },
+  { value: "vercel", label: "Vercel" },
+] as const;
+
+export const DOMAIN_PROVIDERS = [
+  { value: "", label: "—" },
+  { value: "wedos", label: "Wedos" },
+  { value: "forpsi", label: "Forpsi" },
+  { value: "hukot", label: "Hukot" },
 ] as const;
 
 export const WEB_EVENT_TYPES: {

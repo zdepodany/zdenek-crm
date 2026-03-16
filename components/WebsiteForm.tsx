@@ -7,7 +7,7 @@ import {
   updateWebsite,
   type WebsiteFormData,
 } from "@/lib/actions";
-import { HOSTING_OPTIONS } from "@/lib/constants";
+import { HOSTING_OPTIONS, DOMAIN_PROVIDERS } from "@/lib/constants";
 import type { Client } from "@/lib/database";
 
 type WebsiteForForm = {
@@ -15,6 +15,7 @@ type WebsiteForForm = {
   clientId: string;
   creationPrice: number | null;
   hosting: string;
+  domainProvider: string;
   url: string;
   githubRepo: string;
 };
@@ -37,6 +38,7 @@ export function WebsiteForm({ website, clients }: WebsiteFormProps) {
       clientId: formData.get("clientId") as string,
       creationPrice: formData.get("creationPrice") as string,
       hosting: formData.get("hosting") as string,
+      domainProvider: formData.get("domainProvider") as string,
       url: formData.get("url") as string,
       githubRepo: formData.get("githubRepo") as string,
     };
@@ -86,7 +88,7 @@ export function WebsiteForm({ website, clients }: WebsiteFormProps) {
         </select>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <div>
           <label
             htmlFor="creationPrice"
@@ -121,6 +123,26 @@ export function WebsiteForm({ website, clients }: WebsiteFormProps) {
             {HOSTING_OPTIONS.map((h) => (
               <option key={h.value} value={h.value}>
                 {h.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label
+            htmlFor="domainProvider"
+            className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
+          >
+            Poskytovatel domény
+          </label>
+          <select
+            id="domainProvider"
+            name="domainProvider"
+            defaultValue={website?.domainProvider ?? ""}
+            className={inputClass}
+          >
+            {DOMAIN_PROVIDERS.map((p) => (
+              <option key={p.value || "empty"} value={p.value}>
+                {p.label}
               </option>
             ))}
           </select>

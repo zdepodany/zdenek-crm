@@ -4,7 +4,7 @@ import { getWebsiteById, getWebEvents } from "@/lib/websites";
 import { DeleteWebsiteButton } from "@/components/DeleteWebsiteButton";
 import { WebEventForm } from "@/components/WebEventForm";
 import { DeleteWebEventButton } from "@/components/DeleteWebEventButton";
-import { HOSTING_OPTIONS, WEB_EVENT_TYPES } from "@/lib/constants";
+import { HOSTING_OPTIONS, DOMAIN_PROVIDERS, WEB_EVENT_TYPES } from "@/lib/constants";
 import { formatDate, formatCurrency } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -24,6 +24,8 @@ export default async function WebsiteDetailPage({ params }: PageProps) {
 
   const getHostingLabel = (value: string) =>
     HOSTING_OPTIONS.find((h) => h.value === value)?.label ?? value;
+  const getDomainProviderLabel = (value: string) =>
+    DOMAIN_PROVIDERS.find((p) => p.value === value)?.label ?? (value || "—");
   const getEventTypeLabel = (value: string) =>
     WEB_EVENT_TYPES.find((t) => t.value === value)?.label ?? value;
 
@@ -116,6 +118,14 @@ export default async function WebsiteDetailPage({ params }: PageProps) {
               </dt>
               <dd className="mt-1 text-sm text-slate-900 dark:text-slate-100">
                 {getHostingLabel(website.hosting)}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                Poskytovatel domény
+              </dt>
+              <dd className="mt-1 text-sm text-slate-900 dark:text-slate-100">
+                {getDomainProviderLabel(website.domainProvider)}
               </dd>
             </div>
             <div>

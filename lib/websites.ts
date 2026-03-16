@@ -12,6 +12,7 @@ type WebsiteRowWithClient = {
   client_id: string;
   creation_price: number | null;
   hosting: string;
+  domain_provider: string;
   url: string;
   github_repo: string;
   clients: { name: string } | null;
