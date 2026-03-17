@@ -1,11 +1,11 @@
 import { getSupabase } from "./supabase";
 import { toLead, type Lead } from "./database";
 
-export type LeadSortField = "contacted_at" | "updated_at";
+export type LeadSortField = "contacted_at" | "updated_at" | "last_contact";
 
 export async function getLeads(
   statusFilter?: string,
-  sortBy: LeadSortField = "contacted_at",
+  sortBy: LeadSortField = "updated_at",
   sortOrder: "asc" | "desc" = "desc"
 ): Promise<Lead[]> {
   let query = getSupabase().from("leads").select("*");
@@ -14,7 +14,8 @@ export async function getLeads(
     query = query.eq("status", statusFilter);
   }
 
-  query = query.order(sortBy, {
+  const dbSortBy = sortBy === "last_contact" ? "updated_at" : sortBy;
+  query = query.order(dbSortBy, {
     ascending: sortOrder === "asc",
     nullsFirst: false,
   });

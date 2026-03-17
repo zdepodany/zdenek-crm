@@ -8,6 +8,7 @@ import {
   STATUS_FILTER_INACTIVE,
 } from "@/lib/constants";
 import { formatDate, formatDaysAgo, daysAgo } from "@/lib/utils";
+import { SortableHeader } from "@/components/SortableHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -27,16 +28,29 @@ function buildLeadsUrl(params: { status?: string; sort?: string; order?: string 
 export default async function LeadsPage({ searchParams }: PageProps) {
   const { status, sort, order } = await searchParams;
   const statusFilter = status && status !== "all" ? status : undefined;
-  const sortBy = (sort === "contacted_at" || sort === "updated_at" ? sort : "updated_at") as
-    | "contacted_at"
-    | "updated_at";
+  const sortBy = (
+    sort === "contacted_at" || sort === "updated_at" || sort === "last_contact"
+      ? sort
+      : "last_contact"
+  ) as "contacted_at" | "updated_at" | "last_contact";
   const sortOrder = order === "asc" ? "asc" : "desc";
 
-  const leads = await getLeads(statusFilter, sortBy, sortOrder);
+  let leads = await getLeads(statusFilter, sortBy, sortOrder);
   const lastContact =
     leads.length > 0
       ? await getLastContactDates(leads.map((l) => l.id))
       : {};
+
+  if (sortBy === "last_contact") {
+    leads = [...leads].sort((a, b) => {
+      const dateA = lastContact[a.id]?.getTime() ?? 0;
+      const dateB = lastContact[b.id]?.getTime() ?? 0;
+      if (dateA === dateB) return 0;
+      return sortOrder === "desc"
+        ? dateB - dateA
+        : dateA - dateB;
+    });
+  }
 
   const getStatusLabel = (value: string) =>
     STATUSES.find((s) => s.value === value)?.label ?? value;
@@ -106,7 +120,17 @@ export default async function LeadsPage({ searchParams }: PageProps) {
                   Stav
                 </th>
                 <th className="px-6 py-4 text-left text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
-                  Poslední kontakt
+                  <SortableHeader
+                    label="Poslední kontakt"
+                    href={buildLeadsUrl({
+                      status: statusFilter,
+                      sort: "last_contact",
+                      order:
+                        sortBy === "last_contact" && sortOrder === "desc" ? "asc" : "desc",
+                    })}
+                    isActive={sortBy === "last_contact"}
+                    order={sortBy === "last_contact" ? sortOrder : "desc"}
+                  />
                 </th>
                 <th className="px-6 py-4 text-right text-xs font-medium tracking-wider text-slate-500 dark:text-slate-400">
                   Akce
