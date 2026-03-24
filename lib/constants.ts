@@ -7,13 +7,13 @@ export const CONTACT_CHANNELS = [
 ] as const;
 
 export const STATUSES = [
-  { value: "new", label: "Nový" },
-  { value: "contacted", label: "Kontaktován" },
-  { value: "replied", label: "Čeká" },
-  { value: "proposal_sent", label: "Nabídka odeslána" },
-  { value: "negotiation", label: "Vyjednávání" },
-  { value: "won", label: "Vyhráno" },
-  { value: "lost", label: "Prohráno" },
+  { value: "new", label: "Nové" },
+  { value: "contacted", label: "Čekám na odpověď" },
+  { value: "replied", label: "Čekají na odpověď" },
+  { value: "proposal_sent", label: "Návrh odeslán" },
+  { value: "negotiation", label: "Práce probíhá" },
+  { value: "won", label: "Hotovo" },
+  { value: "lost", label: "Odmítnuto" },
   { value: "inactive", label: "Neaktivní" },
 ] as const;
 

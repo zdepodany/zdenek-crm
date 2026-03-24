@@ -163,6 +163,7 @@ export type LeadEventRow = {
   note: string | null;
   web_id: string | null;
   client_id: string | null;
+  sort_order?: number;
   created_at?: string;
 };
 
@@ -175,6 +176,7 @@ export type LeadEvent = {
   note: string | null;
   webId: string | null;
   clientId: string | null;
+  sortOrder: number;
 };
 
 export function toLeadEvent(row: LeadEventRow): LeadEvent {
@@ -187,5 +189,6 @@ export function toLeadEvent(row: LeadEventRow): LeadEvent {
     note: row.note,
     webId: row.web_id,
     clientId: row.client_id,
+    sortOrder: row.sort_order ?? 0,
   };
 }

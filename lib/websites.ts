@@ -28,20 +28,17 @@ export async function getWebsiteCount(): Promise<number> {
   return count ?? 0;
 }
 
+/** Součet pouze z akcí „Fakturace“ na webech (ne z ceny vytvoření webu). */
 export async function getTotalEarnings(): Promise<number> {
-  const db = getSupabase();
+  const { data, error } = await getSupabase()
+    .from("web_events")
+    .select("amount")
+    .eq("type", "billing");
 
-  const [creationRes, billingRes] = await Promise.all([
-    db.from("websites").select("creation_price"),
-    db.from("web_events").select("amount").eq("type", "billing"),
-  ]);
+  if (error) throw error;
 
   let total = 0;
-  for (const row of creationRes.data ?? []) {
-    const price = (row as { creation_price: number | null }).creation_price;
-    if (price != null) total += Number(price);
-  }
-  for (const row of billingRes.data ?? []) {
+  for (const row of data ?? []) {
     const amount = (row as { amount: number | null }).amount;
     if (amount != null) total += Number(amount);
   }

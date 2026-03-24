@@ -6,14 +6,8 @@ import { getWebsites } from "@/lib/websites";
 import { getClients } from "@/lib/clients";
 import { DeleteLeadButton } from "@/components/DeleteLeadButton";
 import { LeadEventForm } from "@/components/LeadEventForm";
-import { DeleteLeadEventButton } from "@/components/DeleteLeadEventButton";
-import {
-  STATUSES,
-  CONTACT_CHANNELS,
-  LEAD_EVENT_TYPES,
-  LEAD_EVENT_CONTACT_METHODS,
-  getStatusColor,
-} from "@/lib/constants";
+import { LeadEventsSortableList } from "@/components/LeadEventsSortableList";
+import { STATUSES, CONTACT_CHANNELS, getStatusColor } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -37,10 +31,21 @@ export default async function LeadDetailPage({ params }: PageProps) {
     STATUSES.find((s) => s.value === value)?.label ?? value;
   const getChannelLabel = (value: string) =>
     CONTACT_CHANNELS.find((c) => c.value === value)?.label ?? value;
-  const getEventTypeLabel = (value: string) =>
-    LEAD_EVENT_TYPES.find((t) => t.value === value)?.label ?? value;
-  const getMethodLabel = (value: string) =>
-    LEAD_EVENT_CONTACT_METHODS.find((m) => m.value === value)?.label ?? value;
+  const eventListItems = events.map((e) => ({
+    id: e.id,
+    type: e.type,
+    date: e.date.toISOString().slice(0, 10),
+    method: e.method,
+    note: e.note,
+    webId: e.webId,
+    clientId: e.clientId,
+  }));
+  const websiteRefs = websites.map((w) => ({
+    id: w.id,
+    url: w.url,
+    clientName: w.clientName,
+  }));
+  const clientRefs = clients.map((c) => ({ id: c.id, name: c.name }));
 
   return (
     <div>
@@ -162,66 +167,12 @@ export default async function LeadDetailPage({ params }: PageProps) {
             Zatím žádné akce. Přidejte první akci výše.
           </p>
         ) : (
-          <div className="space-y-4">
-            {events.map((event) => {
-              const web = event.webId
-                ? websites.find((w) => w.id === event.webId)
-                : null;
-              const client = event.clientId
-                ? clients.find((c) => c.id === event.clientId)
-                : null;
-              return (
-                <div
-                  key={event.id}
-                  className="flex items-start justify-between gap-4 rounded-lg border border-slate-100 bg-slate-50/50 p-4 dark:border-slate-800 dark:bg-slate-800/30"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-medium text-slate-900 dark:text-slate-100">
-                        {getEventTypeLabel(event.type)}
-                      </span>
-                      <span className="text-sm text-slate-500 dark:text-slate-400">
-                        {formatDate(event.date)}
-                      </span>
-                      {event.method && (
-                        <span className="text-sm text-slate-600 dark:text-slate-400">
-                          ({getMethodLabel(event.method)})
-                        </span>
-                      )}
-                    </div>
-                    <div className="mt-1 space-y-0.5 text-sm text-slate-600 dark:text-slate-400">
-                      {web && (
-                        <p>
-                          Web:{" "}
-                          <Link
-                            href={`/websites/${web.id}`}
-                            className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
-                          >
-                            {web.url ? web.url.replace(/^https?:\/\//, "") : "(bez adresy)"}
-                          </Link>
-                        </p>
-                      )}
-                      {client && (
-                        <p>
-                          Klient:{" "}
-                          <Link
-                            href={`/clients/${client.id}`}
-                            className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
-                          >
-                            {client.name}
-                          </Link>
-                        </p>
-                      )}
-                      {event.note && (
-                        <p className="whitespace-pre-wrap">{event.note}</p>
-                      )}
-                    </div>
-                  </div>
-                  <DeleteLeadEventButton eventId={event.id} leadId={lead.id} />
-                </div>
-              );
-            })}
-          </div>
+          <LeadEventsSortableList
+            leadId={lead.id}
+            initialEvents={eventListItems}
+            websites={websiteRefs}
+            clients={clientRefs}
+          />
         )}
       </div>
     </div>

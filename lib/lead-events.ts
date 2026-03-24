@@ -1,8 +1,7 @@
 import { getSupabase } from "./supabase";
 import { toLeadEvent, type LeadEvent } from "./database";
 
-const CONTACT_EVENT_TYPES = ["contact_initiated", "contact_received", "reply_received"];
-
+/** Nejnovější datum akce u poptávky (všechny typy akcí = poslední kontakt v přehledu). */
 export async function getLastContactDates(
   leadIds: string[]
 ): Promise<Record<string, Date>> {
@@ -12,7 +11,6 @@ export async function getLastContactDates(
     .from("lead_events")
     .select("lead_id, date")
     .in("lead_id", leadIds)
-    .in("type", CONTACT_EVENT_TYPES)
     .order("date", { ascending: false });
 
   if (error) throw error;
@@ -32,6 +30,7 @@ export async function getLeadEvents(leadId: string): Promise<LeadEvent[]> {
     .from("lead_events")
     .select("*")
     .eq("lead_id", leadId)
+    .order("sort_order", { ascending: true })
     .order("date", { ascending: false });
 
   if (error) throw error;

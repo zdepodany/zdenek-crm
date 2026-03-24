@@ -237,19 +237,45 @@ export type LeadEventFormData = {
 };
 
 export async function createLeadEvent(leadId: string, data: LeadEventFormData) {
+  const db = getSupabase();
+  const { data: maxRow } = await db
+    .from("lead_events")
+    .select("sort_order")
+    .eq("lead_id", leadId)
+    .order("sort_order", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const nextOrder = ((maxRow as { sort_order?: number } | null)?.sort_order ?? -1) + 1;
+
   const payload: Record<string, unknown> = {
     lead_id: leadId,
     type: data.type,
     date: data.date,
+    sort_order: nextOrder,
   };
   if (data.method) payload.method = data.method;
   if (data.note) payload.note = data.note;
   if (data.webId) payload.web_id = data.webId;
   if (data.clientId) payload.client_id = data.clientId;
 
-  const { error } = await getSupabase().from("lead_events").insert(payload);
+  const { error } = await db.from("lead_events").insert(payload);
 
   if (error) throw error;
+  revalidatePath(`/leads/${leadId}`);
+  revalidatePath("/leads");
+}
+
+export async function reorderLeadEvents(leadId: string, orderedEventIds: string[]) {
+  const db = getSupabase();
+  const results = await Promise.all(
+    orderedEventIds.map((id, index) =>
+      db.from("lead_events").update({ sort_order: index }).eq("id", id).eq("lead_id", leadId)
+    )
+  );
+  for (const r of results) {
+    if (r.error) throw r.error;
+  }
   revalidatePath(`/leads/${leadId}`);
   revalidatePath("/leads");
 }
