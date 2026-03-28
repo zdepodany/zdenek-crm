@@ -8,7 +8,7 @@ import { CONTACT_CHANNELS, STATUSES } from "@/lib/constants";
 type LeadForForm = {
   id: string;
   companyName: string;
-  city: string;
+  city: string | null;
   website: string;
   contact: string;
   contactChannel: string;
@@ -85,14 +85,13 @@ export function LeadForm({ lead }: LeadFormProps) {
             htmlFor="city"
             className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
           >
-            Město
+            Město <span className="font-normal text-slate-400">(nepovinné)</span>
           </label>
           <input
             type="text"
             id="city"
             name="city"
-            required
-            defaultValue={lead?.city}
+            defaultValue={lead?.city ?? ""}
             className={inputClass}
           />
         </div>

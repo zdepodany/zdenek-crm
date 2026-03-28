@@ -60,7 +60,9 @@ export default async function LeadDetailPage({ params }: PageProps) {
           <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 dark:text-slate-100">
             {lead.companyName}
           </h1>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{lead.city}</p>
+          {lead.city ? (
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{lead.city}</p>
+          ) : null}
         </div>
         <div className="flex gap-2">
           <Link
@@ -87,7 +89,9 @@ export default async function LeadDetailPage({ params }: PageProps) {
             </div>
             <div>
               <dt className="text-xs font-medium text-slate-500 dark:text-slate-400">Město</dt>
-              <dd className="mt-1 text-sm text-slate-900 dark:text-slate-100">{lead.city}</dd>
+              <dd className="mt-1 text-sm text-slate-900 dark:text-slate-100">
+                {lead.city ?? "—"}
+              </dd>
             </div>
             <div>
               <dt className="text-xs font-medium text-slate-500 dark:text-slate-400">Web</dt>

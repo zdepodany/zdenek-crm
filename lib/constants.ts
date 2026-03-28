@@ -113,6 +113,7 @@ export const LEAD_EVENT_TYPES: {
   { value: "contact_initiated", label: "Kontaktoval jsem je", fields: ["date", "method", "note"] },
   { value: "contact_received", label: "Kontaktovali mě", fields: ["date", "method", "note"] },
   { value: "reply_received", label: "Odpověděli mi", fields: ["date", "method", "note"] },
+  { value: "reply_sent", label: "Odpověděl jsem", fields: ["date", "method", "note"] },
   { value: "proposal_sent", label: "Poslal jsem návrh", fields: ["date", "note"] },
   { value: "rejected", label: "Odmítli mě", fields: ["date", "note"] },
   { value: "completed", label: "Dokončili jsme poptávku", fields: ["date", "web", "client", "note"] },

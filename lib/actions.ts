@@ -15,9 +15,10 @@ export type LeadFormData = {
 };
 
 export async function createLead(data: LeadFormData) {
+  const city = data.city?.trim() || null;
   const { error } = await getSupabase().from("leads").insert({
     company_name: data.companyName,
-    city: data.city,
+    city,
     website: data.website,
     contact: data.contact,
     contact_channel: data.contactChannel,
@@ -32,11 +33,12 @@ export async function createLead(data: LeadFormData) {
 }
 
 export async function updateLead(id: string, data: LeadFormData) {
+  const city = data.city?.trim() || null;
   const { error } = await getSupabase()
     .from("leads")
     .update({
       company_name: data.companyName,
-      city: data.city,
+      city,
       website: data.website,
       contact: data.contact,
       contact_channel: data.contactChannel,

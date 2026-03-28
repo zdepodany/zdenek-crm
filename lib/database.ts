@@ -1,7 +1,7 @@
 export type LeadRow = {
   id: string;
   company_name: string;
-  city: string;
+  city: string | null;
   website: string;
   contact: string;
   contact_channel: string;
@@ -15,7 +15,7 @@ export type LeadRow = {
 export type Lead = {
   id: string;
   companyName: string;
-  city: string;
+  city: string | null;
   website: string;
   contact: string;
   contactChannel: string;
@@ -28,7 +28,7 @@ export function toLead(row: LeadRow): Lead {
   return {
     id: row.id,
     companyName: row.company_name,
-    city: row.city,
+    city: row.city ?? null,
     website: row.website,
     contact: row.contact,
     contactChannel: row.contact_channel,
