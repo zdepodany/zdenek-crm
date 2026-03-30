@@ -1,17 +1,26 @@
 import { getSupabase } from "./supabase";
 import { toLeadEvent, type LeadEvent } from "./database";
 
-/** Nejnovější datum akce u poptávky (všechny typy akcí = poslední kontakt v přehledu). */
+/**
+ * Nejnovější datum akce per poptávka.
+ * Bez argumentu (nebo s undefined) vrátí data pro VŠECHNY poptávky – vhodné pro
+ * paralelní volání, kdy ID nejsou předem known.
+ */
 export async function getLastContactDates(
-  leadIds: string[]
+  leadIds?: string[]
 ): Promise<Record<string, Date>> {
-  if (leadIds.length === 0) return {};
+  if (leadIds !== undefined && leadIds.length === 0) return {};
 
-  const { data, error } = await getSupabase()
+  let query = getSupabase()
     .from("lead_events")
     .select("lead_id, date")
-    .in("lead_id", leadIds)
     .order("date", { ascending: false });
+
+  if (leadIds !== undefined) {
+    query = query.in("lead_id", leadIds);
+  }
+
+  const { data, error } = await query;
 
   if (error) throw error;
 

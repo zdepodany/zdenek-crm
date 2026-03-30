@@ -33,11 +33,11 @@ export default async function LeadsPage({ searchParams }: PageProps) {
   ) as "updated_at" | "last_contact";
   const sortOrder = order === "asc" ? "asc" : "desc";
 
-  let leads = await getLeads(statusFilter, sortBy, sortOrder);
-  const lastContact =
-    leads.length > 0
-      ? await getLastContactDates(leads.map((l) => l.id))
-      : {};
+  // Obě query běží paralelně – getLastContactDates bez filtru vrátí vše najednou
+  let [leads, lastContact] = await Promise.all([
+    getLeads(statusFilter, sortBy, sortOrder),
+    getLastContactDates(),
+  ]);
 
   if (sortBy === "last_contact") {
     leads = [...leads].sort((a, b) => {

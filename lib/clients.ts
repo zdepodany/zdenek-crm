@@ -3,6 +3,16 @@ import { toClient, type Client } from "./database";
 
 export type ClientSortField = "cooperation_start_date" | "updated_at";
 
+/** Lean select – jen ID a název. Vhodné pro rozbalovací seznamy. */
+export async function getClientRefs(): Promise<{ id: string; name: string }[]> {
+  const { data, error } = await getSupabase().from("clients").select("id, name");
+  if (error) throw error;
+  return (data ?? []).map((row) => {
+    const r = row as { id: string; name: string };
+    return { id: r.id, name: r.name };
+  });
+}
+
 export async function getClients(
   sortBy: ClientSortField = "cooperation_start_date",
   sortOrder: "asc" | "desc" = "desc"

@@ -2,8 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getLeadById } from "@/lib/leads";
 import { getLeadEvents } from "@/lib/lead-events";
-import { getWebsites } from "@/lib/websites";
-import { getClients } from "@/lib/clients";
+import { getWebsiteRefs } from "@/lib/websites";
+import { getClientRefs } from "@/lib/clients";
 import { DeleteLeadButton } from "@/components/DeleteLeadButton";
 import { LeadEventForm } from "@/components/LeadEventForm";
 import { LeadEventsSortableList } from "@/components/LeadEventsSortableList";
@@ -17,11 +17,11 @@ type PageProps = {
 
 export default async function LeadDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const [lead, events, websites, clients] = await Promise.all([
+  const [lead, events, websiteRefs, clientRefs] = await Promise.all([
     getLeadById(id),
     getLeadEvents(id),
-    getWebsites(),
-    getClients(),
+    getWebsiteRefs(),
+    getClientRefs(),
   ]);
 
   if (!lead) notFound();
@@ -39,12 +39,6 @@ export default async function LeadDetailPage({ params }: PageProps) {
     webId: e.webId,
     clientId: e.clientId,
   }));
-  const websiteRefs = websites.map((w) => ({
-    id: w.id,
-    url: w.url,
-    clientName: w.clientName,
-  }));
-  const clientRefs = clients.map((c) => ({ id: c.id, name: c.name }));
 
   return (
     <div>
@@ -149,7 +143,7 @@ export default async function LeadDetailPage({ params }: PageProps) {
           <h2 className="mb-5 text-sm font-medium uppercase tracking-wider text-slate-400 dark:text-slate-500">
             Přidat akci
           </h2>
-          <LeadEventForm leadId={lead.id} websites={websites} clients={clients} />
+          <LeadEventForm leadId={lead.id} websites={websiteRefs} clients={clientRefs} />
         </div>
       </div>
 

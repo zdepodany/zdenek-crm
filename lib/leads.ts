@@ -39,34 +39,18 @@ export async function getLeadById(id: string): Promise<Lead | null> {
   return data ? toLead(data) : null;
 }
 
+/** Jeden dotaz místo 9 × COUNT – vrátí počty per-stav i celkový součet. */
 export async function getLeadCounts(): Promise<
   Record<string, number> & { total: number }
 > {
-  const db = getSupabase();
-  const statuses = [
-    "new",
-    "contacted",
-    "replied",
-    "proposal_sent",
-    "negotiation",
-    "won",
-    "lost",
-    "inactive",
-  ];
+  const { data, error } = await getSupabase().from("leads").select("status");
+  if (error) throw error;
 
-  const [totalRes, ...statusRes] = await Promise.all([
-    db.from("leads").select("id", { count: "exact", head: true }),
-    ...statuses.map((s) =>
-      db.from("leads").select("id", { count: "exact", head: true }).eq("status", s)
-    ),
-  ]);
-
-  const counts: Record<string, number> = {
-    total: totalRes.count ?? 0,
-  };
-  statuses.forEach((s, i) => {
-    counts[s] = statusRes[i].count ?? 0;
-  });
-
+  const counts: Record<string, number> = { total: 0 };
+  for (const row of data ?? []) {
+    const s = (row as { status: string }).status;
+    counts[s] = (counts[s] ?? 0) + 1;
+    counts.total += 1;
+  }
   return counts as Record<string, number> & { total: number };
 }

@@ -19,6 +19,26 @@ type WebsiteRowWithClient = {
   clients: { name: string } | null;
 };
 
+type WebsiteRefRow = { id: string; url: string; clients: { name: string } | { name: string }[] | null };
+
+/** Lean select – jen ID, URL a jméno klienta. Vhodné pro rozbalovací seznamy. */
+export async function getWebsiteRefs(): Promise<
+  { id: string; url: string; clientName: string }[]
+> {
+  const { data, error } = await getSupabase()
+    .from("websites")
+    .select("id, url, clients(name)");
+  if (error) throw error;
+  return (data ?? []).map((row) => {
+    const r = row as unknown as WebsiteRefRow;
+    const clientsField = r.clients;
+    const clientName = Array.isArray(clientsField)
+      ? (clientsField[0]?.name ?? "")
+      : (clientsField?.name ?? "");
+    return { id: r.id, url: r.url, clientName };
+  });
+}
+
 export async function getWebsiteCount(): Promise<number> {
   const { count, error } = await getSupabase()
     .from("websites")

@@ -7,13 +7,13 @@ import {
   LEAD_EVENT_TYPES,
   LEAD_EVENT_CONTACT_METHODS,
 } from "@/lib/constants";
-import type { WebsiteWithClient } from "@/lib/database";
-import type { Client } from "@/lib/database";
+type WebsiteRef = { id: string; url: string; clientName: string };
+type ClientRef = { id: string; name: string };
 
 type LeadEventFormProps = {
   leadId: string;
-  websites: WebsiteWithClient[];
-  clients: Client[];
+  websites: WebsiteRef[];
+  clients: ClientRef[];
 };
 
 const inputClass =
