@@ -10,9 +10,9 @@ const PIPELINE_STATUS_VALUES = [
   "new",
   "contacted",
   "replied",
-  "proposal_sent",
   "negotiation",
   "inactive",
+  "lost",
 ] as const;
 
 const PIPELINE_CARD_STYLES: Record<string, string> = {
@@ -21,12 +21,12 @@ const PIPELINE_CARD_STYLES: Record<string, string> = {
     "border-amber-200/90 bg-white hover:border-amber-300 hover:bg-amber-50/80 dark:border-amber-900/60 dark:bg-slate-900 dark:hover:border-amber-800 dark:hover:bg-amber-950/25",
   replied:
     "border-emerald-200/90 bg-white hover:border-emerald-300 hover:bg-emerald-50/80 dark:border-emerald-900/50 dark:bg-slate-900 dark:hover:border-emerald-800 dark:hover:bg-emerald-950/25",
-  proposal_sent:
-    "border-violet-200/90 bg-white hover:border-violet-300 hover:bg-violet-50/80 dark:border-violet-900/50 dark:bg-slate-900 dark:hover:border-violet-800 dark:hover:bg-violet-950/25",
   negotiation:
     "border-orange-200/90 bg-white hover:border-orange-300 hover:bg-orange-50/80 dark:border-orange-900/50 dark:bg-slate-900 dark:hover:border-orange-800 dark:hover:bg-orange-950/25",
   inactive:
     "border-slate-200/90 bg-white hover:border-slate-300 hover:bg-slate-50/80 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-600 dark:hover:bg-slate-800/80",
+  lost:
+    "border-rose-200/90 bg-white hover:border-rose-300 hover:bg-rose-50/80 dark:border-rose-900/50 dark:bg-slate-900 dark:hover:border-rose-800 dark:hover:bg-rose-950/25",
 };
 
 export default async function DashboardPage() {
@@ -38,6 +38,7 @@ export default async function DashboardPage() {
 
   const won = metrics.won ?? 0;
   const lost = metrics.lost ?? 0;
+  const proposalSent = metrics.proposal_sent ?? 0;
   const closedTotal = won + lost;
   const successRate =
     closedTotal > 0 ? Math.round((won / closedTotal) * 100) : null;
@@ -69,7 +70,7 @@ export default async function DashboardPage() {
           id="dashboard-outcomes-heading"
           className="mb-4 text-sm font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400"
         >
-          Výsledky
+          Hotovo a odeslané návrhy
         </h2>
         <div className="grid gap-4 lg:grid-cols-2">
           <Link
@@ -106,24 +107,24 @@ export default async function DashboardPage() {
           </Link>
 
           <Link
-            href="/leads?status=lost"
-            className="group relative overflow-hidden rounded-2xl border-2 border-rose-400/40 bg-gradient-to-br from-rose-500/12 via-red-500/8 to-orange-900/10 p-6 shadow-md shadow-rose-900/5 transition-all hover:border-rose-400/70 hover:shadow-lg hover:shadow-rose-900/10 dark:border-rose-500/35 dark:from-rose-600/20 dark:via-red-900/20 dark:to-orange-950/25 dark:shadow-black/20 dark:hover:border-rose-400/50"
+            href="/leads?status=proposal_sent"
+            className="group relative overflow-hidden rounded-2xl border-2 border-violet-400/45 bg-gradient-to-br from-violet-500/14 via-purple-500/10 to-fuchsia-600/18 p-6 shadow-md shadow-violet-900/5 transition-all hover:border-violet-400/75 hover:shadow-lg hover:shadow-violet-900/10 dark:border-violet-500/40 dark:from-violet-600/22 dark:via-purple-900/20 dark:to-fuchsia-950/25 dark:shadow-black/20 dark:hover:border-violet-400/55"
           >
-            <div className="absolute -right-6 -top-6 h-32 w-32 rounded-full bg-rose-400/15 blur-2xl dark:bg-rose-500/10" />
+            <div className="absolute -right-6 -top-6 h-32 w-32 rounded-full bg-violet-400/20 blur-2xl dark:bg-violet-400/10" />
             <div className="relative flex items-start justify-between gap-4">
               <div>
-                <p className="text-sm font-medium text-rose-900 dark:text-rose-200/90">
-                  Odmítnuto
+                <p className="text-sm font-medium text-violet-900 dark:text-violet-200/90">
+                  Odeslané návrhy
                 </p>
-                <p className="mt-2 text-4xl font-bold tabular-nums tracking-tight text-rose-950 dark:text-rose-50">
-                  {lost}
+                <p className="mt-2 text-4xl font-bold tabular-nums tracking-tight text-violet-950 dark:text-violet-50">
+                  {proposalSent}
                 </p>
-                <p className="mt-2 text-sm text-rose-800/85 dark:text-rose-200/65">
-                  Uzavřené bez dohody · zobrazit v seznamu
+                <p className="mt-2 text-sm text-violet-800/85 dark:text-violet-200/70">
+                  Stav „Návrh odeslán“ · zobrazit v seznamu
                 </p>
               </div>
               <span
-                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-rose-500/20 text-rose-900 ring-2 ring-rose-400/25 dark:bg-rose-500/15 dark:text-rose-100 dark:ring-rose-400/20"
+                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-violet-500/25 text-violet-900 ring-2 ring-violet-400/30 dark:bg-violet-500/20 dark:text-violet-100 dark:ring-violet-400/20"
                 aria-hidden
               >
                 <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,7 +132,7 @@ export default async function DashboardPage() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                   />
                 </svg>
               </span>
@@ -171,7 +172,7 @@ export default async function DashboardPage() {
 
         <div className="rounded-2xl border border-slate-200/80 bg-slate-50/40 p-4 dark:border-slate-800 dark:bg-slate-900/40 sm:p-5">
           <p className="mb-3 text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">
-            Stav v procesu
+            Další stavy
           </p>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {pipelineStatuses.map((s) => (

@@ -54,7 +54,6 @@ CREATE TABLE IF NOT EXISTS leads (
   contact TEXT NOT NULL DEFAULT '',
   contact_channel TEXT NOT NULL DEFAULT 'email',
   status TEXT NOT NULL DEFAULT 'new',
-  contacted_at TIMESTAMPTZ,
   notes TEXT NOT NULL DEFAULT '',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()

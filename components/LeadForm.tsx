@@ -13,7 +13,6 @@ type LeadForForm = {
   contact: string;
   contactChannel: string;
   status: string;
-  contactedAt: Date | null;
   notes: string;
 };
 
@@ -37,7 +36,6 @@ export function LeadForm({ lead }: LeadFormProps) {
       contact: formData.get("contact") as string,
       contactChannel: formData.get("contactChannel") as string,
       status: formData.get("status") as string,
-      contactedAt: formData.get("contactedAt") as string,
       notes: formData.get("notes") as string,
     };
 
@@ -152,46 +150,25 @@ export function LeadForm({ lead }: LeadFormProps) {
         </div>
       </div>
 
-      <div className="grid gap-6 sm:grid-cols-2">
-        <div>
-          <label
-            htmlFor="status"
-            className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
-          >
-            Stav
-          </label>
-          <select
-            id="status"
-            name="status"
-            defaultValue={lead?.status ?? "new"}
-            className={inputClass}
-          >
-            {STATUSES.map((s) => (
-              <option key={s.value} value={s.value}>
-                {s.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label
-            htmlFor="contactedAt"
-            className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
-          >
-            Kontaktován dne
-          </label>
-          <input
-            type="date"
-            id="contactedAt"
-            name="contactedAt"
-            defaultValue={
-              lead?.contactedAt
-                ? new Date(lead.contactedAt).toISOString().split("T")[0]
-                : ""
-            }
-            className={inputClass}
-          />
-        </div>
+      <div>
+        <label
+          htmlFor="status"
+          className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
+        >
+          Stav
+        </label>
+        <select
+          id="status"
+          name="status"
+          defaultValue={lead?.status ?? "new"}
+          className={`${inputClass} max-w-md`}
+        >
+          {STATUSES.map((s) => (
+            <option key={s.value} value={s.value}>
+              {s.label}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div>

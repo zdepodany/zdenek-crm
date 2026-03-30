@@ -29,10 +29,8 @@ export default async function LeadsPage({ searchParams }: PageProps) {
   const { status, sort, order } = await searchParams;
   const statusFilter = status && status !== "all" ? status : undefined;
   const sortBy = (
-    sort === "contacted_at" || sort === "updated_at" || sort === "last_contact"
-      ? sort
-      : "last_contact"
-  ) as "contacted_at" | "updated_at" | "last_contact";
+    sort === "updated_at" || sort === "last_contact" ? sort : "last_contact"
+  ) as "updated_at" | "last_contact";
   const sortOrder = order === "asc" ? "asc" : "desc";
 
   let leads = await getLeads(statusFilter, sortBy, sortOrder);

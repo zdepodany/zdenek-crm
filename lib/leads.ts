@@ -1,7 +1,7 @@
 import { getSupabase } from "./supabase";
 import { toLead, type Lead } from "./database";
 
-export type LeadSortField = "contacted_at" | "updated_at" | "last_contact";
+export type LeadSortField = "updated_at" | "last_contact";
 
 export async function getLeads(
   statusFilter?: string,

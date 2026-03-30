@@ -8,7 +8,6 @@ import { DeleteLeadButton } from "@/components/DeleteLeadButton";
 import { LeadEventForm } from "@/components/LeadEventForm";
 import { LeadEventsSortableList } from "@/components/LeadEventsSortableList";
 import { STATUSES, CONTACT_CHANNELS, getStatusColor } from "@/lib/constants";
-import { formatDate } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -132,14 +131,6 @@ export default async function LeadDetailPage({ params }: PageProps) {
                 >
                   {getStatusLabel(lead.status)}
                 </span>
-              </dd>
-            </div>
-            <div>
-              <dt className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                Kontaktován dne
-              </dt>
-              <dd className="mt-1 text-sm text-slate-900 dark:text-slate-100">
-                {formatDate(lead.contactedAt)}
               </dd>
             </div>
           </dl>

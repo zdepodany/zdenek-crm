@@ -10,7 +10,6 @@ export type LeadFormData = {
   contact: string;
   contactChannel: string;
   status: string;
-  contactedAt: string;
   notes: string;
 };
 
@@ -23,7 +22,6 @@ export async function createLead(data: LeadFormData) {
     contact: data.contact,
     contact_channel: data.contactChannel,
     status: data.status,
-    contacted_at: data.contactedAt || null,
     notes: data.notes,
   });
 
@@ -43,7 +41,6 @@ export async function updateLead(id: string, data: LeadFormData) {
       contact: data.contact,
       contact_channel: data.contactChannel,
       status: data.status,
-      contacted_at: data.contactedAt || null,
       notes: data.notes,
       updated_at: new Date().toISOString(),
     })

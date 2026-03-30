@@ -24,7 +24,6 @@ const leads = [
     contact: "jan.novak@techsolutions.cz",
     contact_channel: "email",
     status: "contacted",
-    contacted_at: "2025-03-01T00:00:00Z",
     notes: "Interested in enterprise plan. Follow up next week.",
   },
   {
@@ -34,7 +33,6 @@ const leads = [
     contact: "+420 123 456 789",
     contact_channel: "phone",
     status: "replied",
-    contacted_at: "2025-03-05T00:00:00Z",
     notes: "Asked for pricing. Sent proposal.",
   },
   {
@@ -44,7 +42,6 @@ const leads = [
     contact: "@fashionstore_cz",
     contact_channel: "instagram",
     status: "new",
-    contacted_at: null,
     notes: "Found via Instagram. Need to reach out.",
   },
   {
@@ -54,7 +51,6 @@ const leads = [
     contact: "info@greenenergy.cz",
     contact_channel: "email",
     status: "proposal_sent",
-    contacted_at: "2025-03-03T00:00:00Z",
     notes: "Proposal sent. Waiting for response.",
   },
   {
@@ -64,7 +60,6 @@ const leads = [
     contact: "Coffee House FB",
     contact_channel: "facebook",
     status: "won",
-    contacted_at: "2025-02-20T00:00:00Z",
     notes: "Signed contract. Great customer!",
   },
   {
@@ -74,7 +69,6 @@ const leads = [
     contact: "hello@startuphub.io",
     contact_channel: "email",
     status: "lost",
-    contacted_at: "2025-02-28T00:00:00Z",
     notes: "Went with competitor. Budget constraints.",
   },
 ];

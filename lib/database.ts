@@ -6,7 +6,6 @@ export type LeadRow = {
   contact: string;
   contact_channel: string;
   status: string;
-  contacted_at: string | null;
   notes: string;
   created_at?: string;
   updated_at?: string;
@@ -20,7 +19,6 @@ export type Lead = {
   contact: string;
   contactChannel: string;
   status: string;
-  contactedAt: Date | null;
   notes: string;
 };
 
@@ -33,7 +31,6 @@ export function toLead(row: LeadRow): Lead {
     contact: row.contact,
     contactChannel: row.contact_channel,
     status: row.status,
-    contactedAt: row.contacted_at ? new Date(row.contacted_at) : null,
     notes: row.notes,
   };
 }
