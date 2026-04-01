@@ -7,10 +7,7 @@ export type ClientSortField = "cooperation_start_date" | "updated_at";
 export async function getClientRefs(): Promise<{ id: string; name: string }[]> {
   const { data, error } = await getSupabase().from("clients").select("id, name");
   if (error) throw error;
-  return (data ?? []).map((row) => {
-    const r = row as { id: string; name: string };
-    return { id: r.id, name: r.name };
-  });
+  return (data ?? []) as { id: string; name: string }[];
 }
 
 export async function getClients(

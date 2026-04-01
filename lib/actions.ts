@@ -61,7 +61,6 @@ export async function deleteLead(id: string) {
 }
 
 export async function deleteLeadAction(formData: FormData) {
-  "use server";
   const id = formData.get("id") as string;
   if (id) await deleteLead(id);
 }
@@ -120,7 +119,6 @@ export async function deleteClient(id: string) {
 }
 
 export async function deleteClientAction(formData: FormData) {
-  "use server";
   const id = formData.get("id") as string;
   if (id) await deleteClient(id);
 }
@@ -179,7 +177,6 @@ export async function deleteWebsite(id: string) {
 }
 
 export async function deleteWebsiteAction(formData: FormData) {
-  "use server";
   const id = formData.get("id") as string;
   if (id) await deleteWebsite(id);
 }
@@ -219,7 +216,6 @@ export async function deleteWebEvent(id: string, webId: string) {
 }
 
 export async function deleteWebEventAction(formData: FormData) {
-  "use server";
   const id = formData.get("id") as string;
   const webId = formData.get("webId") as string;
   if (id && webId) await deleteWebEvent(id, webId);
@@ -266,15 +262,15 @@ export async function createLeadEvent(leadId: string, data: LeadEventFormData) {
 }
 
 export async function reorderLeadEvents(leadId: string, orderedEventIds: string[]) {
-  const db = getSupabase();
-  const results = await Promise.all(
-    orderedEventIds.map((id, index) =>
-      db.from("lead_events").update({ sort_order: index }).eq("id", id).eq("lead_id", leadId)
-    )
-  );
-  for (const r of results) {
-    if (r.error) throw r.error;
-  }
+  const updates = orderedEventIds.map((id, index) => ({
+    id,
+    lead_id: leadId,
+    sort_order: index,
+  }));
+  const { error } = await getSupabase().rpc("reorder_lead_events", {
+    updates: JSON.stringify(updates),
+  });
+  if (error) throw error;
   revalidatePath(`/leads/${leadId}`);
   revalidatePath("/leads");
 }
@@ -288,7 +284,6 @@ export async function deleteLeadEvent(id: string, leadId: string) {
 }
 
 export async function deleteLeadEventAction(formData: FormData) {
-  "use server";
   const id = formData.get("id") as string;
   const leadId = formData.get("leadId") as string;
   if (id && leadId) await deleteLeadEvent(id, leadId);

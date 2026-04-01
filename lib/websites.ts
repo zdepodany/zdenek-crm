@@ -5,6 +5,7 @@ import {
   type Website,
   type WebsiteWithClient,
   type WebEvent,
+  type WebEventRow,
 } from "./database";
 
 type WebsiteRowWithClient = {
@@ -30,12 +31,11 @@ export async function getWebsiteRefs(): Promise<
     .select("id, url, clients(name)");
   if (error) throw error;
   return (data ?? []).map((row) => {
-    const r = row as unknown as WebsiteRefRow;
-    const clientsField = r.clients;
-    const clientName = Array.isArray(clientsField)
-      ? (clientsField[0]?.name ?? "")
-      : (clientsField?.name ?? "");
-    return { id: r.id, url: r.url, clientName };
+    const { id, url, clients } = row as unknown as WebsiteRefRow;
+    const clientName = Array.isArray(clients)
+      ? (clients[0]?.name ?? "")
+      : (clients?.name ?? "");
+    return { id, url, clientName };
   });
 }
 
@@ -48,21 +48,11 @@ export async function getWebsiteCount(): Promise<number> {
   return count ?? 0;
 }
 
-/** Součet pouze z akcí „Fakturace“ na webech (ne z ceny vytvoření webu). */
+/** SQL SUM() přes RPC – agregace proběhne v DB, vrátí jen výslednou částku. */
 export async function getTotalEarnings(): Promise<number> {
-  const { data, error } = await getSupabase()
-    .from("web_events")
-    .select("amount")
-    .eq("type", "billing");
-
+  const { data, error } = await getSupabase().rpc("get_total_earnings");
   if (error) throw error;
-
-  let total = 0;
-  for (const row of data ?? []) {
-    const amount = (row as { amount: number | null }).amount;
-    if (amount != null) total += Number(amount);
-  }
-  return total;
+  return Number(data ?? 0);
 }
 
 export type WebsiteSortField = "updated_at" | "created_at";
@@ -109,7 +99,7 @@ export async function getWebsitesByClientId(clientId: string): Promise<Website[]
     .order("updated_at", { ascending: false });
 
   if (error) throw error;
-  return (data ?? []).map((row) => toWebsite(row as Parameters<typeof toWebsite>[0]) as Website);
+  return (data ?? []).map((row) => toWebsite(row as WebsiteRowWithClient) as Website);
 }
 
 export async function getWebEvents(webId: string): Promise<WebEvent[]> {
@@ -120,5 +110,5 @@ export async function getWebEvents(webId: string): Promise<WebEvent[]> {
     .order("date", { ascending: false });
 
   if (error) throw error;
-  return (data ?? []).map((row) => toWebEvent(row as Parameters<typeof toWebEvent>[0]));
+  return (data ?? []).map((row) => toWebEvent(row as WebEventRow));
 }

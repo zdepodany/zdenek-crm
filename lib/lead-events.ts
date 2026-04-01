@@ -1,35 +1,24 @@
 import { getSupabase } from "./supabase";
-import { toLeadEvent, type LeadEvent } from "./database";
+import { toLeadEvent, type LeadEvent, type LeadEventRow } from "./database";
 
 /**
- * Nejnovější datum akce per poptávka.
- * Bez argumentu (nebo s undefined) vrátí data pro VŠECHNY poptávky – vhodné pro
- * paralelní volání, kdy ID nejsou předem known.
+ * Nejnovější datum akce per poptávka přes SQL MAX GROUP BY (RPC).
+ * Volitelně filtrováno dle leadIds – bez parametru vrátí vše najednou.
  */
 export async function getLastContactDates(
   leadIds?: string[]
 ): Promise<Record<string, Date>> {
   if (leadIds !== undefined && leadIds.length === 0) return {};
 
-  let query = getSupabase()
-    .from("lead_events")
-    .select("lead_id, date")
-    .order("date", { ascending: false });
-
-  if (leadIds !== undefined) {
-    query = query.in("lead_id", leadIds);
-  }
-
-  const { data, error } = await query;
+  const { data, error } = await getSupabase().rpc("get_last_contact_dates", {
+    filter_lead_ids: leadIds ?? null,
+  });
 
   if (error) throw error;
 
   const result: Record<string, Date> = {};
-  for (const row of data ?? []) {
-    const r = row as { lead_id: string; date: string };
-    if (!result[r.lead_id]) {
-      result[r.lead_id] = new Date(r.date);
-    }
+  for (const row of (data ?? []) as { lead_id: string; last_date: string }[]) {
+    result[row.lead_id] = new Date(row.last_date);
   }
   return result;
 }
@@ -43,5 +32,5 @@ export async function getLeadEvents(leadId: string): Promise<LeadEvent[]> {
     .order("date", { ascending: false });
 
   if (error) throw error;
-  return (data ?? []).map((row) => toLeadEvent(row as Parameters<typeof toLeadEvent>[0]));
+  return (data ?? []).map((row) => toLeadEvent(row as LeadEventRow));
 }

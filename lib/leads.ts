@@ -39,18 +39,11 @@ export async function getLeadById(id: string): Promise<Lead | null> {
   return data ? toLead(data) : null;
 }
 
-/** Jeden dotaz místo 9 × COUNT – vrátí počty per-stav i celkový součet. */
+/** SQL GROUP BY přes RPC – agregace proběhne v DB, vrátí jen výsledný objekt. */
 export async function getLeadCounts(): Promise<
   Record<string, number> & { total: number }
 > {
-  const { data, error } = await getSupabase().from("leads").select("status");
+  const { data, error } = await getSupabase().rpc("get_lead_counts");
   if (error) throw error;
-
-  const counts: Record<string, number> = { total: 0 };
-  for (const row of data ?? []) {
-    const s = (row as { status: string }).status;
-    counts[s] = (counts[s] ?? 0) + 1;
-    counts.total += 1;
-  }
-  return counts as Record<string, number> & { total: number };
+  return (data ?? { total: 0 }) as Record<string, number> & { total: number };
 }
